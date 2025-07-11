@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 
 @Composable
 fun LoginScreen(navController: NavController, modifier: Modifier) {
@@ -71,7 +72,7 @@ fun LoginScreen(navController: NavController, modifier: Modifier) {
                 ) {
                     TextButton(
                         onClick = {
-                            navController.navigate("screen_register")
+                            navController.navigate(Routes.REGISTER)
                         },
                     ) {
                         Text("Don't have an account? Register")
