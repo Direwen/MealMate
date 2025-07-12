@@ -38,5 +38,5 @@ local.properties
 *.cert
 *.p12
 
-# Firebase/Google Services (if used)
-google-services.json  # Add project-specific configs here
+# Firebase config file
+app/google-services.json

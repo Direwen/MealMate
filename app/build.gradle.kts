@@ -1,7 +1,9 @@
 plugins {
+//    id("com.android.application")
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -60,4 +62,8 @@ dependencies {
 
     // Jetpack Compose integration
     implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.5")
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
+
 }

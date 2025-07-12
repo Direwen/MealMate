@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.minsikhein_bj01lr.mealmate.ui.screen.HomeScreen
 import com.minsikhein_bj01lr.mealmate.ui.screen.LoginScreen
 import com.minsikhein_bj01lr.mealmate.ui.screen.RegisterScreen
 
@@ -13,7 +14,7 @@ import com.minsikhein_bj01lr.mealmate.ui.screen.RegisterScreen
 fun MealMateNavHost(navController: NavHostController, modifier: Modifier) {
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN
+        startDestination = Routes.HOME
     ) {
         composable(Routes.LOGIN) {
             LoginScreen(
@@ -23,6 +24,12 @@ fun MealMateNavHost(navController: NavHostController, modifier: Modifier) {
         }
         composable(Routes.REGISTER) {
             RegisterScreen(
+                navController = navController,
+                modifier = Modifier
+            )
+        }
+        composable(Routes.HOME) {
+            HomeScreen(
                 navController = navController,
                 modifier = Modifier
             )
