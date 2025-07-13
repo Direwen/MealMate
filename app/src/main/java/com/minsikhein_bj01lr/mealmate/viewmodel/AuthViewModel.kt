@@ -1,46 +1,96 @@
 package com.minsikhein_bj01lr.mealmate.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import com.google.firebase.auth.FirebaseUser
 
-data class AuthState(
-    val email: String = "",
-    val password: String = "",
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val isAuthenticated: Boolean = false
-)
+// Sealed class to represent different authentication states
+sealed class AuthState {
+    // Object represent singletons which can serve as only a state without no extra data
+    object Loading : AuthState()
+    // Data class can represent states with extra data such as (user: FirebaseUser) (message: String)
+    data class Authenticated(val user: FirebaseUser) : AuthState()
+    object Unauthenticated : AuthState()
+    data class Error(val message: String) : AuthState()
+}
 
 class AuthViewModel : ViewModel() {
-    private val _state = MutableStateFlow(AuthState())
-    val state: StateFlow<AuthState> = _state.asStateFlow()
 
-    fun setEmail(email: String) {
-        _state.update { it.copy(email = email) }
+    private val auth = FirebaseAuth.getInstance()
+    // private variable for internal purposes and modifications
+    // Mutable State Flow is a mutable reactive container
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Unauthenticated)
+    // public and for only reading purposes
+    val authState: StateFlow<AuthState> = _authState
+
+    init {
+        checkCurrentUser()
     }
 
-    fun setPassword(password: String) {
-        _state.update { it.copy(password = password) }
+    private fun checkCurrentUser() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            _authState.value = AuthState.Authenticated(currentUser)
+        } else {
+            _authState.value = AuthState.Unauthenticated
+        }
     }
 
-    fun login() {
-        // Logic that updates state
+    fun isValidEmail(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
-    // Simulate login logic
-    fun validateAndLogin(): Boolean {
-        // In real app, you would call Firebase or API
-        // For now, we simulate a successful login after user types "test@test.com"
-        if (state.value.email == "test@test.com" && state.value.password == "password") {
-            _state.update {
-                it.copy(isAuthenticated = true)
-            }
-            return true
+    fun login(email: String, password: String) {
+        if (email.isEmpty() || password.isEmpty()) {
+            _authState.value = AuthState.Error("Email or Password cannot be empty")
+            return
         }
 
-        return false
+        if (!isValidEmail(email)) {
+            _authState.value = AuthState.Error("Please enter a valid email address")
+            return
+        }
+
+        _authState.value = AuthState.Loading
+
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = task.result?.user
+                    if (user != null) {
+                        _authState.value = AuthState.Authenticated(user)
+                    }
+                } else {
+                    _authState.value = AuthState.Error(task.exception?.message ?: "Unknown error")
+                }
+            }
+    }
+
+    fun signup(email: String, password: String) {
+        if (email.isEmpty() || password.isEmpty()) {
+            _authState.value = AuthState.Error("Email or Password cannot be empty")
+            return
+        }
+
+        _authState.value = AuthState.Loading
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = task.result?.user
+                    if (user != null) {
+                        _authState.value = AuthState.Authenticated(user)
+                    }
+                } else {
+                    _authState.value = AuthState.Error(task.exception?.message ?: "An unknown error occurred")
+                }
+            }
+    }
+
+    fun signOut() {
+        auth.signOut()
+        _authState.value = AuthState.Unauthenticated
     }
 }

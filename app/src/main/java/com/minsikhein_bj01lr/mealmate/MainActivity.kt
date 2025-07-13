@@ -1,5 +1,6 @@
 package com.minsikhein_bj01lr.mealmate
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,10 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.minsikhein_bj01lr.mealmate.ui.navigation.MealMateNavHost
 import com.minsikhein_bj01lr.mealmate.ui.theme.MealMateTheme
+import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("ViewModelConstructorInComposable")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //init
+        val authViewModel = AuthViewModel()
         enableEdgeToEdge()
         setContent {
             MealMateTheme {
@@ -23,7 +28,8 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     MealMateNavHost(
                         navController = navController,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        authViewModel = authViewModel
                     )
                 }
             }
