@@ -26,7 +26,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral90
 import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.SoftOrange
 
 @Composable
 fun AuthenticatedScreen(
