@@ -17,18 +17,19 @@ fun GuestScreen(
     navController: NavController,
     content: @Composable () -> Unit
 ) {
-    val authState by authViewModel.authState.collectAsState()
-
-    when (authState) {
-        is AuthState.Unauthenticated -> content()
-        else -> {
-            LaunchedEffect(Unit) {
-                navController.navigate(Routes.HOME) {
-                    popUpTo(Routes.HOME) { inclusive = true }
-                    launchSingleTop = true
-                }
-            }
-        }
-    }
+    return content()
+//    val authState by authViewModel.authState.collectAsState()
+//
+//    when (authState) {
+//        is AuthState.Unauthenticated -> content()
+//        else -> {
+//            LaunchedEffect(Unit) {
+//                navController.navigate(Routes.HOME) {
+//                    popUpTo(Routes.HOME) { inclusive = true }
+//                    launchSingleTop = true
+//                }
+//            }
+//        }
+//    }
 
 }

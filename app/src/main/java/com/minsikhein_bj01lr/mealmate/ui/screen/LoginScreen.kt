@@ -2,7 +2,6 @@ package com.minsikhein_bj01lr.mealmate.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,10 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,22 +24,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.minsikhein_bj01lr.mealmate.ui.component.GuestScreen
-import com.minsikhein_bj01lr.mealmate.ui.component.MealMateIcon
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateIntro
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateTextField
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
-import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral0
 import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.SoftOrange
-import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthState
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 

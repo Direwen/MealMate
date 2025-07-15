@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.minsikhein_bj01lr.mealmate.ui.navigation.MealMateNavHost
 import com.minsikhein_bj01lr.mealmate.ui.theme.MealMateTheme
@@ -23,15 +24,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MealMateTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    //Navigation Setup
-                    val navController = rememberNavController()
-                    MealMateNavHost(
-                        navController = navController,
-                        modifier = Modifier.padding(innerPadding),
-                        authViewModel = authViewModel
-                    )
-                }
+                //Navigation Setup
+                val navController = rememberNavController()
+                MealMateNavHost(
+                    navController = navController,
+                    modifier = Modifier.padding(4.dp),
+                    authViewModel = authViewModel
+                )
             }
         }
     }
