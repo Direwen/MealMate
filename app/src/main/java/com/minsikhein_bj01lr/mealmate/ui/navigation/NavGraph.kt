@@ -49,7 +49,7 @@ fun MealMateNavHost(
         composable(Routes.HOME) {
             HomeScreen(
                 navController = navController,
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
             )
         }
         composable(Routes.RECIPES_LIST) {
