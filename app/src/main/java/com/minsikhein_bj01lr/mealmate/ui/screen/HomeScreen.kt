@@ -53,7 +53,7 @@ fun HomeScreen(
 
             //Extracting Email from the current authenticated user
             val email = when (authState) {
-                is AuthState.Authenticated -> (authState as AuthState.Authenticated).user.email ?: "User"
+                is AuthState.Authenticated -> (authState as AuthState.Authenticated).dbUser.name
                 else -> "Guest"
             }
 
