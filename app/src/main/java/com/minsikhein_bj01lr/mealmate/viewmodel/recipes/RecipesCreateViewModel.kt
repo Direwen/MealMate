@@ -21,7 +21,8 @@ data class CreateRecipeUiState(
     val preparationTime: Int = 1,
     val servings: Int = 1,
     val ingredients: List<IngredientInput> = emptyList<IngredientInput>(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val error: String = ""
 )
 
 class RecipesCreateViewModel : ViewModel() {
@@ -36,24 +37,68 @@ class RecipesCreateViewModel : ViewModel() {
         _createRecipeUiState.value = newState
     }
 
+    private fun setLoading(isLoading: Boolean) {
+        _createRecipeUiState.value = _createRecipeUiState.value.copy(isLoading = isLoading)
+    }
+
+    private fun setError(error: String) {
+        _createRecipeUiState.value = _createRecipeUiState.value.copy(error = error)
+    }
+
     fun submitRecipe(currentUserId: String, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
+        setLoading(true)
+        setError("") // Clear previous error
+
         val currentState = _createRecipeUiState.value
 
-        // Update state to show loading
-        _createRecipeUiState.value = currentState.copy(isLoading = true)
+        // 🔍 Validation Step
+        when {
+            currentState.title.isBlank() -> {
+                setError("Title cannot be empty")
+                setLoading(false)
+                return
+            }
 
-        viewModelScope.launch {
-            try {
-                recipeRepository.createRecipeWithIngredients(
-                    uiState = _createRecipeUiState.value,
-                    creatorId = currentUserId
-                )
-                onSuccess()
-            } catch (e: Exception) {
-                onError(e)
-            } finally {
-                // Restore state to not loading
-                _createRecipeUiState.value = _createRecipeUiState.value.copy(isLoading = false)
+            currentState.instructions.isBlank() -> {
+                setError("Instructions cannot be empty")
+                setLoading(false)
+                return
+            }
+
+            currentState.ingredients.isEmpty() -> {
+                setError("At least one ingredient is required")
+                setLoading(false)
+                return
+            }
+
+            currentState.preparationTime < 1 -> {
+                setError("Preparation time must be at least 1 minute")
+                setLoading(false)
+                return
+            }
+
+            currentState.servings < 1 -> {
+                setError("Servings must be at least 1")
+                setLoading(false)
+                return
+            }
+
+            else -> {
+                // All validations passed, proceed with submission
+                viewModelScope.launch {
+                    try {
+                        recipeRepository.createRecipeWithIngredients(
+                            uiState = currentState,
+                            creatorId = currentUserId
+                        )
+                        onSuccess()
+                    } catch (e: Exception) {
+                        setError("Failed to submit recipe: ${e.message}")
+                        onError(e)
+                    } finally {
+                        setLoading(false)
+                    }
+                }
             }
         }
     }

@@ -120,6 +120,16 @@ fun CreateRecipeForm(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        if (uiState.error != null) {
+            Text(
+                text = uiState.error!!,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         Button(onClick = onSubmit, modifier = Modifier.align(Alignment.End)) {
             Text("Submit Recipe")
         }
