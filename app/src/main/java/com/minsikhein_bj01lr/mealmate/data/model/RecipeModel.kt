@@ -7,7 +7,7 @@ data class Recipe(
     val creatorId: String = "", // User ID who created it
     val title: String = "",
     val instructions: String = "",
-    val preparationTime: Int = 0, // in minutes
+    val preparationTime: Int = 3, // in minutes
     val servings: Int = 1,
     val createdAt: Date = Date(),
     val updatedAt: Date = Date()
