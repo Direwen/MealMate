@@ -20,7 +20,8 @@ data class CreateRecipeUiState(
     val instructions: String = "",
     val preparationTime: Int = 1,
     val servings: Int = 1,
-    val ingredients: List<IngredientInput> = emptyList<IngredientInput>()
+    val ingredients: List<IngredientInput> = emptyList<IngredientInput>(),
+    val isLoading: Boolean = false
 )
 
 class RecipesCreateViewModel : ViewModel() {
@@ -36,6 +37,11 @@ class RecipesCreateViewModel : ViewModel() {
     }
 
     fun submitRecipe(currentUserId: String, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
+        val currentState = _createRecipeUiState.value
+
+        // Update state to show loading
+        _createRecipeUiState.value = currentState.copy(isLoading = true)
+
         viewModelScope.launch {
             try {
                 recipeRepository.createRecipeWithIngredients(
@@ -45,7 +51,11 @@ class RecipesCreateViewModel : ViewModel() {
                 onSuccess()
             } catch (e: Exception) {
                 onError(e)
+            } finally {
+                // Restore state to not loading
+                _createRecipeUiState.value = _createRecipeUiState.value.copy(isLoading = false)
             }
         }
     }
+
 }

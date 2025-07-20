@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
+import com.minsikhein_bj01lr.mealmate.ui.component.LoadingScreen
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
 import com.minsikhein_bj01lr.mealmate.ui.component.recipes.CreateRecipeForm
@@ -29,17 +30,21 @@ fun RecipesCreateScreen(
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            CreateRecipeForm(
-                uiState = uiState,
-                onUiStateChange = { viewModel.onUiStateChange(it) },
-                onSubmit = {
-                    viewModel.submitRecipe(
-                        currentUserId = authViewModel.currentUser?.uid ?: "",
-                        onSuccess = { navController.popBackStack() },
-                        onError = { e -> println("Error: ${e.message}") }
-                    )
-                }
-            )
+
+            LoadingScreen(isLoading = uiState.isLoading) {
+                CreateRecipeForm(
+                    uiState = uiState,
+                    onUiStateChange = { viewModel.onUiStateChange(it) },
+                    onSubmit = {
+                        viewModel.submitRecipe(
+                            currentUserId = authViewModel.currentUser?.uid ?: "",
+                            onSuccess = { navController.popBackStack() },
+                            onError = { e -> println("Error: ${e.message}") }
+                        )
+                    }
+                )
+            }
+
         }
     }
 }
