@@ -27,6 +27,7 @@ class AuthViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Unauthenticated)
     // External read-only state
     val authState: StateFlow<AuthState> = _authState
+    val currentUser: FirebaseUser? get() = auth.currentUser
 
     init {
         checkCurrentUser()
