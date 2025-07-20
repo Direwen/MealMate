@@ -1,7 +1,10 @@
 package com.minsikhein_bj01lr.mealmate.ui.component
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
@@ -23,6 +26,7 @@ import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.NavigationBarItemDefaults
+import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral90
 import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
@@ -44,7 +48,8 @@ fun AuthenticatedScreen(
             )
 
             Scaffold(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().background(SoftCreamyYellow),
+                containerColor = SoftCreamyYellow,
                 bottomBar = {
                     NavigationBar(
                         modifier = Modifier,
@@ -87,7 +92,14 @@ fun AuthenticatedScreen(
                     }
                 }
             ) { innerPadding ->
-                content(innerPadding)
+                Box(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
+                        .background(SoftCreamyYellow)
+                ) {
+                    content(innerPadding)
+                }
             }
         }
 

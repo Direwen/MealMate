@@ -1,13 +1,19 @@
 package com.minsikhein_bj01lr.mealmate.ui.component.recipes
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.minsikhein_bj01lr.mealmate.ui.component.MealMateTextField
+import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
+import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.CreateRecipeUiState
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.IngredientInput
 
@@ -20,64 +26,102 @@ fun CreateRecipeForm(
     var newIngredientName by remember { mutableStateOf("") }
     var newIngredientAmount by remember { mutableStateOf("") }
 
-    Column {
-        OutlinedTextField(
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+    ) {
+        // Title Field
+        MealMateTextField(
             value = uiState.title,
             onValueChange = { onUiStateChange(uiState.copy(title = it)) },
-            label = { Text("Title") },
+            label = "Title",
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Instructions Field
+        MealMateTextField(
             value = uiState.instructions,
             onValueChange = { onUiStateChange(uiState.copy(instructions = it)) },
-            label = { Text("Instructions") },
-            modifier = Modifier.fillMaxWidth()
+            label = "Instructions",
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 120.dp),
+            isSingleLine = false
         )
 
-        OutlinedTextField(
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Preparation Time
+        MealMateTextField(
             value = uiState.preparationTime.toString(),
             onValueChange = {
                 val time = it.toIntOrNull() ?: 1
                 onUiStateChange(uiState.copy(preparationTime = time))
             },
-            label = { Text("Preparation Time (minutes)") },
+            label = "Preparation Time (minutes)",
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Servings
+        MealMateTextField(
             value = uiState.servings.toString(),
             onValueChange = {
                 val servings = it.toIntOrNull() ?: 1
                 onUiStateChange(uiState.copy(servings = servings))
             },
-            label = { Text("Servings") },
+            label = "Servings",
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
-        Text("Ingredients", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(24.dp))
 
-        // ✅ List of added ingredients
+        // Ingredients List
+        Text("Ingredients", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            uiState.ingredients.forEachIndexed { index, ingredient ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "${ingredient.name} - ${ingredient.amount}",
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(
-                        onClick = {
-                            val updated = uiState.ingredients.toMutableList()
-                            updated.removeAt(index)
-                            onUiStateChange(uiState.copy(ingredients = updated))
-                        }
+            if (uiState.ingredients.isEmpty()) {
+                Text(
+                    text = "No ingredients added yet.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            } else {
+                uiState.ingredients.forEachIndexed { index, ingredient ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.3f))
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Delete, contentDescription = "Remove")
+                        Text(
+                            text = "${ingredient.name} - ${ingredient.amount}",
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = {
+                                val updated = uiState.ingredients.toMutableList().apply {
+                                    removeAt(index)
+                                }
+                                onUiStateChange(uiState.copy(ingredients = updated))
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Remove",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             }
@@ -85,19 +129,22 @@ fun CreateRecipeForm(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ✅ Input section for new ingredient
+        // Add New Ingredient
+        Text("Add Ingredient", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(
+            MealMateTextField(
                 value = newIngredientName,
                 onValueChange = { newIngredientName = it },
-                label = { Text("Ingredient Name") },
+                label = "Ingredient Name",
                 modifier = Modifier.weight(1f)
             )
 
-            OutlinedTextField(
+            MealMateTextField(
                 value = newIngredientAmount,
                 onValueChange = { newIngredientAmount = it },
-                label = { Text("Amount") },
+                label = "Amount",
                 modifier = Modifier.weight(1f)
             )
         }
@@ -113,25 +160,36 @@ fun CreateRecipeForm(
                 newIngredientAmount = ""
             },
             enabled = newIngredientName.isNotBlank() && newIngredientAmount.isNotBlank(),
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally),
+            colors = ButtonDefaults.buttonColors(WarmBrown)
         ) {
             Text("Add Ingredient")
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        if (uiState.error != null) {
+        // Error Message
+        if (uiState.error.isNotBlank()) {
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = uiState.error!!,
+                text = uiState.error,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
             )
-            Spacer(modifier = Modifier.height(16.dp))
         }
 
-        Button(onClick = onSubmit, modifier = Modifier.align(Alignment.End)) {
-            Text("Submit Recipe")
+        // Submit Button
+        Button(
+            onClick = onSubmit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally),
+            colors = ButtonDefaults.buttonColors(DeepRed)
+        ) {
+            Text("Create Recipe")
         }
     }
 }
