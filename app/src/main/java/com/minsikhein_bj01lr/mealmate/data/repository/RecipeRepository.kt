@@ -59,16 +59,16 @@ class RecipeRepository(
         }
     }
 
-    suspend fun getRecipesByCreatorId(userId: String): List<Recipe>? {
+    suspend fun getRecipesByCreatorId(creatorId: String): List<Recipe>? {
         return try {
             val snapshot = recipeCollection
-                .whereEqualTo("creatorId", userId)
+                .whereEqualTo("creatorId", creatorId)
                 .get()
                 .await()
 
             snapshot.toObjects(Recipe::class.java)
         } catch (e: Exception) {
-            Log.e(TAG, "Error getting recipes for user=$userId", e)
+            Log.e(TAG, "Error getting recipes for user=$creatorId", e)
             null
         }
     }
