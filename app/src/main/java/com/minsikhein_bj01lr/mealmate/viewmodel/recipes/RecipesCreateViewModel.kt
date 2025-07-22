@@ -83,6 +83,18 @@ class RecipesCreateViewModel : ViewModel() {
                 return
             }
 
+            currentState.preparationTime > 2880 -> {
+                setError("Preparation time can't exceed 48 hours (2880 mins)")
+                setLoading(false)
+                return
+            }
+
+            currentState.servings > 50 -> {
+                setError("Servings can't be more than 50")
+                setLoading(false)
+                return
+            }
+
             else -> {
                 // All validations passed, proceed with submission
                 viewModelScope.launch {

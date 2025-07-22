@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DinnerDining
+import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -24,6 +26,8 @@ import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthState
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FoodBank
+import androidx.compose.material.icons.filled.LocalGroceryStore
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.NavigationBarItemDefaults
 import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
@@ -43,8 +47,8 @@ fun AuthenticatedScreen(
         is AuthState.Authenticated -> {
             val items = listOf(
                 NavItem("Home", Icons.Default.Home, Routes.HOME),
-                NavItem("Recipes", Icons.Default.Favorite, Routes.RECIPES_LIST),
-                NavItem("Groceries", Icons.Default.ShoppingCart, Routes.GROCERIES_LIST),
+                NavItem("Recipes", Icons.Default.DinnerDining, Routes.RECIPES_LIST),
+                NavItem("Groceries", Icons.Default.LocalGroceryStore, Routes.GROCERIES_LIST),
             )
 
             Scaffold(

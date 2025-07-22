@@ -29,7 +29,7 @@ fun CreateRecipeForm(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         // Title Field
         MealMateTextField(
@@ -137,14 +137,14 @@ fun CreateRecipeForm(
             MealMateTextField(
                 value = newIngredientName,
                 onValueChange = { newIngredientName = it },
-                label = "Ingredient Name",
+                label = "Water",
                 modifier = Modifier.weight(1f)
             )
 
             MealMateTextField(
                 value = newIngredientAmount,
                 onValueChange = { newIngredientAmount = it },
-                label = "Amount",
+                label = "3 cups",
                 modifier = Modifier.weight(1f)
             )
         }
@@ -154,7 +154,7 @@ fun CreateRecipeForm(
         Button(
             onClick = {
                 val updated = uiState.ingredients.toMutableList()
-                updated.add(IngredientInput(newIngredientName, newIngredientAmount))
+                updated.add(IngredientInput(newIngredientName.lowercase(), newIngredientAmount.lowercase()))
                 onUiStateChange(uiState.copy(ingredients = updated))
                 newIngredientName = ""
                 newIngredientAmount = ""
@@ -189,7 +189,7 @@ fun CreateRecipeForm(
                 .align(Alignment.CenterHorizontally),
             colors = ButtonDefaults.buttonColors(DeepRed)
         ) {
-            Text("Create Recipe")
+            Text("Confirm")
         }
     }
 }
