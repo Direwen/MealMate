@@ -73,26 +73,36 @@ class RecipeRepository(
         }
     }
 
-    suspend fun createRecipe(recipe: Recipe): Boolean {
+    suspend fun getRecipeWithIngredients(recipeId: String): Triple<Recipe?, List<RecipeIngredientWithDetail>, List<String>> {
         return try {
-            recipeCollection.document(recipe.id).set(recipe).await()
-            Log.d(TAG, "Recipe added with id=${recipe.id}")
-            true
+            //Get Recipe Document
+            val recipeDoc = recipeCollection.document(recipeId).get().await()
+            //Turn Document into Recipe model
+            val recipe = recipeDoc.toObject(Recipe::class.java)
+            //Get Ingredients included in this Recipe
+            val recipeIngredients = recipeIngredientRepository.getRecipeIngredients(recipeId) ?: emptyList()
+            //List those ingredient ids
+            val ingredientIds = recipeIngredients.map { it.ingredientId }
+            //Get Info of those ingredients
+            val ingredients = ingredientRepository.getIngredientsByIds(ingredientIds)
+            //Turn the list of Ingredient objects into a map, where the key is each ingredient’s id
+            //From List<Ingredient> to Map<String, Ingredient>
+            val ingredientsById = ingredients.associateBy { it.id }
+            //Enriching the raw join table (RecipeIngredient) with the actual data (Ingredient)
+            val enriched = recipeIngredients.mapNotNull { ri ->
+                val ing = ingredientsById[ri.ingredientId]
+                ing?.let {
+                    RecipeIngredientWithDetail(recipeIngredient = ri, ingredient = it)
+                }
+            }
+
+            Triple(recipe, enriched, ingredientIds)
         } catch (e: Exception) {
-            Log.e(TAG, "Error adding recipe with id=${recipe.id}", e)
-            false
+            Log.e(TAG, "Failed to get recipe with full ingredients", e)
+            Triple(null, emptyList(), emptyList())
         }
     }
 
-    suspend fun getRecipeById(recipeId: String): Recipe? {
-        return try {
-            val document = recipeCollection.document(recipeId).get().await()
-            document.toObject(Recipe::class.java)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error fetching recipe with id=$recipeId", e)
-            null
-        }
-    }
 
     suspend fun deleteRecipe(recipeId: String): Boolean {
         return try {

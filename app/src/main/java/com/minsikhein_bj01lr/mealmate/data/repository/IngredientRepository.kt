@@ -46,5 +46,36 @@ class IngredientRepository {
         }
     }
 
+    suspend fun getIngredientById(id: String): Ingredient? {
+        return try {
+            val doc = ingredientCollection.document(id).get().await()
+            doc.toObject(Ingredient::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun getIngredientsByIds(ids: List<String>): List<Ingredient> {
+        return try {
+            if (ids.isEmpty()) return emptyList()
+
+            val chunks = ids.chunked(10)
+            val results = mutableListOf<Ingredient>()
+
+            for (chunk in chunks) {
+                val snapshot = ingredientCollection
+                    .whereIn("id", chunk)
+                    .get()
+                    .await()
+                results += snapshot.toObjects(Ingredient::class.java)
+            }
+
+            results
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch ingredients by ids", e)
+            emptyList()
+        }
+    }
+
 
 }

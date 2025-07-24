@@ -94,7 +94,7 @@ fun RecipesListScreen(
                     Column {
 
                         //Overview Recipe Row
-                        RecipeOverviewRow(recipe)
+                        RecipeOverviewRow(recipe, navController)
 
                         // Horizontal divider after each item except the last one
                         if (recipe != recipes.last()) {
@@ -112,12 +112,12 @@ fun RecipesListScreen(
 }
 
 @Composable
-fun RecipeOverviewRow(recipe: Recipe) {
+fun RecipeOverviewRow(recipe: Recipe, navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                // Navigate to detail/edit screen
+                navController.navigate("${Routes.RECIPES_DETAIL}/${recipe.id}")
             }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically

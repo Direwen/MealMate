@@ -12,9 +12,10 @@ import kotlinx.coroutines.launch
 
 
 class RecipeListViewModel: ViewModel() {
+    private val ingredientRepository = IngredientRepository()
     private val recipeRepository = RecipeRepository(
-        ingredientRepository = IngredientRepository(),
-        recipeIngredientRepository = RecipeIngredientRepository()
+        ingredientRepository = ingredientRepository,
+        recipeIngredientRepository = RecipeIngredientRepository(ingredientRepository = ingredientRepository)
     )
     private var _recipes = MutableStateFlow<List<Recipe>>(emptyList())
     val recipes = _recipes.asStateFlow()

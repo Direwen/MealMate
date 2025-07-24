@@ -26,9 +26,11 @@ data class CreateRecipeUiState(
 )
 
 class RecipesCreateViewModel : ViewModel() {
+
+    private val ingredientRepository = IngredientRepository()
     private val recipeRepository = RecipeRepository(
-        ingredientRepository = IngredientRepository(),
-        recipeIngredientRepository = RecipeIngredientRepository()
+        ingredientRepository = ingredientRepository,
+        recipeIngredientRepository = RecipeIngredientRepository(ingredientRepository = ingredientRepository)
     )
     private val _createRecipeUiState = MutableStateFlow(CreateRecipeUiState())
     val createRecipeUiState: StateFlow<CreateRecipeUiState> = _createRecipeUiState
