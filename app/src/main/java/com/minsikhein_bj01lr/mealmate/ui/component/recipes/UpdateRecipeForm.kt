@@ -14,14 +14,15 @@ import androidx.compose.ui.unit.dp
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateTextField
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral100
+import com.minsikhein_bj01lr.mealmate.ui.theme.SoftOrange
 import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
-import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.CreateRecipeUiState
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.IngredientInput
+import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.UpdateRecipeUiState
 
 @Composable
-fun CreateRecipeForm(
-    uiState: CreateRecipeUiState,
-    onUiStateChange: (CreateRecipeUiState) -> Unit,
+fun UpdateRecipeForm(
+    uiState: UpdateRecipeUiState,
+    onUiStateChange: (UpdateRecipeUiState) -> Unit,
     onSubmit: () -> Unit
 ) {
     var newIngredientName by remember { mutableStateOf("") }
@@ -85,7 +86,7 @@ fun CreateRecipeForm(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Ingredients List
-        Text("Ingredients", style = MaterialTheme.typography.titleMedium)
+        Text("Current Ingredients", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -137,7 +138,7 @@ fun CreateRecipeForm(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Add New Ingredient
-        Text("Add Ingredient", style = MaterialTheme.typography.titleMedium)
+        Text("Add New Ingredient", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

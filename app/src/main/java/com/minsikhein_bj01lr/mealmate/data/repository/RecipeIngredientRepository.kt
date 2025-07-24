@@ -33,6 +33,19 @@ class RecipeIngredientRepository(
             null
         }
     }
+
+    suspend fun deleteIngredientsByRecipeId(recipeId: String) {
+        try {
+            val recipeIngredients = getRecipeIngredients(recipeId)
+            recipeIngredients?.forEach { recipeIngredient ->
+                recipeIngredientCollection.document(recipeIngredient.id).delete().await()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to delete ingredients for recipeId: $recipeId", e)
+        }
+    }
+
+
 }
 
 data class RecipeIngredientWithDetail(

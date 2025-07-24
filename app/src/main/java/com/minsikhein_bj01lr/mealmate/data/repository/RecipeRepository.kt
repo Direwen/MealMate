@@ -5,6 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.minsikhein_bj01lr.mealmate.data.model.Recipe
 import com.minsikhein_bj01lr.mealmate.data.model.RecipeIngredient
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.CreateRecipeUiState
+import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.UpdateRecipeUiState
 import kotlinx.coroutines.tasks.await
 import java.util.*
 
@@ -100,6 +101,42 @@ class RecipeRepository(
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get recipe with full ingredients", e)
             Triple(null, emptyList(), emptyList())
+        }
+    }
+
+    suspend fun updateRecipeWithIngredients(uiState: UpdateRecipeUiState) {
+        val recipeId = uiState.id
+
+        try {
+            // 1. Update main recipe fields (only editable ones)
+            val updatedFields = mapOf(
+                "title" to uiState.title,
+                "instructions" to uiState.instructions,
+                "preparationTime" to uiState.preparationTime,
+                "servings" to uiState.servings
+            )
+            recipeCollection.document(recipeId).update(updatedFields).await()
+
+            // 2. Delete old RecipeIngredient links
+            recipeIngredientRepository.deleteIngredientsByRecipeId(recipeId)
+
+            // 3. Recreate RecipeIngredient links
+            for (item in uiState.ingredients) {
+                val ingredient = ingredientRepository.getOrCreateIngredient(item.name)
+
+                if (ingredient != null) {
+                    val recipeIngredient = RecipeIngredient(
+                        id = UUID.randomUUID().toString(),
+                        recipeId = recipeId,
+                        ingredientId = ingredient.id,
+                        amount = item.amount
+                    )
+                    recipeIngredientRepository.createIngredientRecipe(recipeIngredient)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to update recipe with ingredients", e)
+            throw e
         }
     }
 

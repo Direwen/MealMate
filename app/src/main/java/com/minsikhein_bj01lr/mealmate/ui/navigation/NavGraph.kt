@@ -21,6 +21,7 @@ import com.minsikhein_bj01lr.mealmate.ui.screen.groceries.GroceriesListScreen
 import com.minsikhein_bj01lr.mealmate.ui.screen.recipes.RecipesCreateScreen
 import com.minsikhein_bj01lr.mealmate.ui.screen.recipes.RecipesDetailScreen
 import com.minsikhein_bj01lr.mealmate.ui.screen.recipes.RecipesListScreen
+import com.minsikhein_bj01lr.mealmate.ui.screen.recipes.RecipesUpdateScreen
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthState
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeDetailViewModel
@@ -71,6 +72,18 @@ fun MealMateNavHost(
             RecipesCreateScreen(
                 navController = navController,
                 authViewModel = authViewModel
+            )
+        }
+        composable(
+            route = Routes.RECIPES_UPDATE_WITH_ARG,
+            arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val recipeId = backStackEntry.arguments?.getString("recipeId") ?: return@composable
+
+            RecipesUpdateScreen(
+                recipeId = recipeId,
+                navController = navController,
+                authViewModel = authViewModel,
             )
         }
         composable(

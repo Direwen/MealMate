@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.SetMeal
 import androidx.compose.material.icons.outlined.ShoppingCart
@@ -25,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.minsikhein_bj01lr.mealmate.data.model.Recipe
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
+import com.minsikhein_bj01lr.mealmate.ui.component.LoadingScreen
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral10
@@ -85,6 +87,7 @@ fun RecipesListScreen(
                 }
             }
 
+
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -107,50 +110,64 @@ fun RecipesListScreen(
                     }
                 }
             }
+
         }
     }
 }
 
 @Composable
 fun RecipeOverviewRow(recipe: Recipe, navController: NavController) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
                 navController.navigate("${Routes.RECIPES_DETAIL}/${recipe.id}")
             }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = recipe.title,
-                style = MaterialTheme.typography.titleLarge,
-                color = DeepRed,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Row: Title and Edit Icon aligned top left & right
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = recipe.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = DeepRed,
+                    modifier = Modifier.weight(1f)
+                )
 
-            // Main container for the metadata row
+                IconButton(
+                    onClick = {
+                        navController.navigate("${Routes.RECIPES_UPDATE}/${recipe.id}")
+                    }
+                ) {
+                    Icon(Icons.Outlined.Edit, contentDescription = "Edit Recipe")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Row: Metadata
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Preparation Time
                 RecipeMetadataItem(
                     icon = Icons.Outlined.Timer,
                     contentDescription = "Preparation time",
                     text = "${recipe.preparationTime} min"
                 )
 
-                // Number of Servings
                 RecipeMetadataItem(
                     icon = Icons.Outlined.SetMeal,
                     contentDescription = "Servings",
                     text = "${recipe.servings} servings"
                 )
 
-                // Date (Created At)
                 RecipeMetadataItem(
                     icon = Icons.Outlined.CalendarToday,
                     contentDescription = "Created date",
@@ -163,6 +180,7 @@ fun RecipeOverviewRow(recipe: Recipe, navController: NavController) {
         }
     }
 }
+
 
 @Composable
 private fun RecipeMetadataItem(
