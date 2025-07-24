@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,13 +22,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.Restaurant
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.minsikhein_bj01lr.mealmate.data.repository.RecipeIngredientWithDetail
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
 import com.minsikhein_bj01lr.mealmate.ui.component.LoadingScreen
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
+import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeDetailUiState
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeDetailViewModel
+
 
 @Composable
 fun RecipesDetailScreen(
@@ -80,13 +86,13 @@ fun RecipesDetailScreen(
                 when (val state = uiState) {
                     is RecipeDetailUiState.Error -> Text("Error: ${state.message}")
                     is RecipeDetailUiState.Success -> {
-                        Column {
-                            Text(text = state.recipe.title)
-                            Text(text = "Instructions: ${state.recipe.instructions}")
-                            state.ingredients.forEach {
-                                Text("- ${it.ingredient.name}: ${it.recipeIngredient.amount}")
-                            }
-                        }
+                        RecipeDetailContent(
+                            title = state.recipe.title,
+                            instructions = state.recipe.instructions,
+                            preparationTime = state.recipe.preparationTime,
+                            servings = state.recipe.servings,
+                            ingredients = state.ingredients
+                        )
                     }
 
                     else -> {} // For loading, no need to handle, already showing overlay
@@ -94,6 +100,100 @@ fun RecipesDetailScreen(
             }
 
         }
+    }
+}
+
+@Composable
+fun RecipeDetailContent(
+    title: String,
+    instructions: String,
+    preparationTime: Int,
+    servings: Int,
+    ingredients: List<RecipeIngredientWithDetail>
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+    ) {
+
+        Text(
+            text = title.split(" ").joinToString(" ") { it.replaceFirstChar(Char::titlecase) },
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+            color = DeepRed
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            InfoWithIcon(
+                icon = Icons.Outlined.AccessTime,
+                text = "$preparationTime mins",
+                modifier = Modifier.padding(end = 16.dp)
+            )
+            InfoWithIcon(
+                icon = Icons.Outlined.Restaurant,
+                text = "Serves $servings"
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Ingredients:",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = WarmBrown
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        ingredients.forEach {
+            Text(
+                text = "• ${it.ingredient.name}: ${it.recipeIngredient.amount}",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(vertical = 2.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Instructions:",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = WarmBrown
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = instructions,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+    }
+}
+
+@Composable
+fun InfoWithIcon(icon: ImageVector, text: String, modifier: Modifier = Modifier) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier
+                .size(20.dp)
+                .padding(end = 4.dp),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
 
