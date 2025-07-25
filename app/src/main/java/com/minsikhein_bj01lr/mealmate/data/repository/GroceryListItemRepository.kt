@@ -1,8 +1,11 @@
+// In GroceryListItemRepository.kt
+
 package com.minsikhein_bj01lr.mealmate.data.repository
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.minsikhein_bj01lr.mealmate.data.model.GroceryListItem
+import com.minsikhein_bj01lr.mealmate.viewmodel.groceries.GroceryItemDisplay
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
@@ -16,10 +19,12 @@ class GroceryListItemRepository(
     private val groceryListItemCollection = firestore.collection("groceryListItems")
     private val TAG = "GroceryListItemRepository"
 
+    // Finds existing GroceryListItem or creates a new one
     private suspend fun getOrCreateGroceryListItem(
         groceryListId: String,
         ingredientId: String
     ): GroceryListItem {
+        Log.d(TAG, "Searching for existing grocery item for ingredientId=$ingredientId in listId=$groceryListId")
         return groceryListItemCollection
             .whereEqualTo("groceryListId", groceryListId)
             .whereEqualTo("ingredientId", ingredientId)
@@ -30,6 +35,7 @@ class GroceryListItemRepository(
             .firstOrNull()
             ?.toObject(GroceryListItem::class.java)
             ?: run {
+                Log.d(TAG, "No existing grocery item found. Creating new item.")
                 val newItem = GroceryListItem(
                     id = UUID.randomUUID().toString(),
                     groceryListId = groceryListId,
@@ -41,43 +47,146 @@ class GroceryListItemRepository(
             }
     }
 
-    // In GroceryListItemRepository.kt
+    // Adds all ingredients of a recipe to the grocery list
     suspend fun addRecipeIngredientsToGroceryList(
         groceryListId: String,
         recipeIngredients: List<RecipeIngredientWithDetail>
     ) {
         try {
-            // 1. Check for existing sources to prevent duplicates
+            Log.d(TAG, "Checking for existing grocery item sources to avoid duplicates...")
             val existingSources = groceryListItemSourceRepository.getGroceryItemSources(
                 groceryListId,
                 recipeIngredients.map { it.recipeIngredient.id }
             )
 
             if (existingSources != null && !existingSources.isEmpty) {
-                Log.d(TAG, "Some ingredients already exist in this grocery list")
+                Log.d(TAG, "Some ingredients already exist in this grocery list. Skipping addition.")
                 return
             }
 
-            // 2. Process each recipe ingredient
+            Log.d(TAG, "Adding ${recipeIngredients.size} ingredients to grocery list $groceryListId...")
             recipeIngredients.forEach { item ->
-                // Find or create base grocery list item
                 val groceryItem = getOrCreateGroceryListItem(
                     groceryListId = groceryListId,
                     ingredientId = item.ingredient.id
                 )
 
-                // Create source link
                 groceryListItemSourceRepository.createGroceryItemSource(
                     groceryItemId = groceryItem.id,
                     recipeIngredientId = item.recipeIngredient.id,
                     groceryListId = groceryListId
                 )
             }
-            Log.d(TAG, "Added ${recipeIngredients.size} items to grocery list $groceryListId")
+            Log.d(TAG, "Successfully added all recipe ingredients to grocery list $groceryListId")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to add recipe ingredients", e)
             throw e
         }
     }
 
+    // Loads and maps all grocery items to display data
+    suspend fun getAllGroceries(
+        groceryListId: String
+    ): List<GroceryItemDisplay> {
+        return try {
+            Log.d(TAG, ">>> [getAllGroceries] Start - Fetching grocery items for listId=$groceryListId")
+
+            val groceryItems = groceryListItemCollection
+                .whereEqualTo("groceryListId", groceryListId)
+                .get()
+                .await()
+                .toObjects(GroceryListItem::class.java)
+
+            Log.d(TAG, "[getAllGroceries] Retrieved ${groceryItems.size} grocery items")
+
+            if (groceryItems.isEmpty()) {
+                Log.d(TAG, "[getAllGroceries] No grocery items found. Returning empty list.")
+                return emptyList()
+            }
+
+            // Fetch sources
+            val sources = groceryListItemSourceRepository.getSourcesByGroceryListId(groceryListId)
+            Log.d(TAG, "[getAllGroceries] Retrieved ${sources.size} sources for grocery items")
+
+            // Fetch recipe ingredients
+            val recipeIngredientIds = sources.map { it.recipeIngredientId }
+            Log.d(TAG, "[getAllGroceries] Extracted ${recipeIngredientIds.size} recipeIngredientIds")
+
+            val recipeIngredients = recipeIngredientIds.chunked(10).flatMap { chunk ->
+                Log.d(TAG, "[getAllGroceries] Fetching recipeIngredients chunk: $chunk")
+                recipeIngredientRepository.getByIds(chunk)
+            }
+
+            Log.d(TAG, "[getAllGroceries] Retrieved ${recipeIngredients.size} recipeIngredients")
+
+            // Fetch ingredient data
+            val ingredientIds = recipeIngredients.map { it.ingredientId }.distinct()
+            Log.d(TAG, "[getAllGroceries] Extracted ${ingredientIds.size} unique ingredientIds")
+
+            val ingredients = ingredientRepository.getIngredientsByIds(ingredientIds)
+            Log.d(TAG, "[getAllGroceries] Retrieved ${ingredients.size} ingredients")
+
+            // Create maps
+            val ingredientMap = ingredients.associateBy { it.id }
+            val recipeIngredientMap = recipeIngredients.associateBy { it.id }
+            val sourcesByItemId = sources.groupBy { it.groceryItemId }
+
+            Log.d(TAG, "[getAllGroceries] Mapping display models for ${groceryItems.size} items")
+
+            groceryItems.map { item ->
+                val itemSources = sourcesByItemId[item.id] ?: emptyList()
+                Log.d(TAG, "[getAllGroceries] Mapping itemId=${item.id}, ingredientId=${item.ingredientId}, sourceCount=${itemSources.size}")
+
+                val ingredient = ingredientMap[item.ingredientId]
+//                var name = ""
+//                if (ingredient != null) {
+//                    name = ingredient.name
+//                }
+
+                if (ingredient == null) {
+                    Log.e(TAG, "[getAllGroceries] Ingredient NOT FOUND for itemId=${item.id}, ingredientId=${item.ingredientId}")
+                    throw IllegalStateException("Ingredient not found for itemId=${item.id}, ingredientId=${item.ingredientId}")
+                }
+
+                val amounts = itemSources.mapNotNull { source ->
+                    val amount = recipeIngredientMap[source.recipeIngredientId]?.amount
+                    if (amount == null) {
+                        Log.w(TAG, "[getAllGroceries] Missing amount for recipeIngredientId=${source.recipeIngredientId}")
+                    }
+                    amount
+                }
+
+                Log.d(TAG, "[getAllGroceries] Finalizing GroceryItemDisplay for itemId=${item.id}")
+
+                GroceryItemDisplay(
+                    id = item.id,
+                    name = ingredient.name,
+                    amounts = amounts,
+                    isPurchased = item.isPurchased
+                )
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "!!! [getAllGroceries] Exception thrown while getting groceries for list $groceryListId", e)
+            throw e
+        }
+    }
+
+
+    // Toggles the purchased status of a grocery item
+    suspend fun togglePurchasedStatus(itemId: String) {
+        try {
+            Log.d(TAG, "Toggling purchased status for itemId=$itemId")
+            val item = groceryListItemCollection.document(itemId).get().await()
+                .toObject(GroceryListItem::class.java)
+            item?.let {
+                groceryListItemCollection.document(itemId)
+                    .update("isPurchased", !it.isPurchased)
+                    .await()
+                Log.d(TAG, "Updated isPurchased to ${!it.isPurchased}")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to toggle purchase status for itemId=$itemId", e)
+            throw e
+        }
+    }
 }

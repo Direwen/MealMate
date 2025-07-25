@@ -45,6 +45,19 @@ class RecipeIngredientRepository(
         }
     }
 
+    suspend fun getByIds(ids: List<String>): List<RecipeIngredient> {
+        return try {
+            if (ids.isEmpty()) return emptyList()
+            recipeIngredientCollection
+                .whereIn("id", ids)
+                .get()
+                .await()
+                .toObjects(RecipeIngredient::class.java)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting recipe ingredients by ids", e)
+            emptyList()
+        }
+    }
 
 }
 

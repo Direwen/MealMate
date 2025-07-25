@@ -41,4 +41,19 @@ class GroceryListItemSourceRepository {
             null
         }
     }
+
+    suspend fun getSourcesByGroceryListId(
+        groceryListId: String
+    ): List<GroceryListItemSource> {
+        return try {
+            groceryListItemSourceCollection
+                .whereEqualTo("groceryListId", groceryListId)
+                .get()
+                .await()
+                .toObjects(GroceryListItemSource::class.java)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting sources for list $groceryListId", e)
+            emptyList()
+        }
+    }
 }
