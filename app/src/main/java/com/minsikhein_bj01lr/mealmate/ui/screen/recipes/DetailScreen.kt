@@ -1,13 +1,22 @@
 package com.minsikhein_bj01lr.mealmate.ui.screen.recipes
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.Restaurant
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -18,14 +27,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.outlined.AccessTime
-import androidx.compose.material.icons.outlined.Restaurant
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeIngredientWithDetail
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
 import com.minsikhein_bj01lr.mealmate.ui.component.LoadingScreen
@@ -33,9 +39,9 @@ import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
+import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.ImportState
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeDetailUiState
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeDetailViewModel
-
 
 @Composable
 fun RecipesDetailScreen(
@@ -45,19 +51,32 @@ fun RecipesDetailScreen(
     viewModel: RecipeDetailViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val importState by viewModel.importState.collectAsState()
+    val currentUserId = authViewModel.currentUser?.uid ?: return
 
-     LaunchedEffect(recipeId) {
-         viewModel.loadRecipeDetails(recipeId)
-     }
+
+    LaunchedEffect(recipeId) {
+        viewModel.loadRecipeDetails(recipeId)
+    }
+
+    LaunchedEffect(importState) {
+        when (importState) {
+            is ImportState.Success -> {
+                // TODO: Show success feedback (snackbar)
+            }
+            is ImportState.Error -> {
+                // TODO: Show error feedback
+            }
+            else -> {}
+        }
+    }
 
     AuthenticatedScreen(
         authViewModel = authViewModel,
         navController = navController
     ) { innerPadding ->
-
-        Column {
-
-            //Title and Back Button
+        Column() {
+            // Title and Back Button
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -71,9 +90,7 @@ fun RecipesDetailScreen(
                         tint = DeepRed
                     )
                 }
-
                 Spacer(modifier = Modifier.width(8.dp))
-
                 Text(
                     text = "Recipe Details",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
@@ -81,7 +98,6 @@ fun RecipesDetailScreen(
                 )
             }
 
-            // Wrap main content in your custom loading screen
             LoadingScreen(isLoading = uiState is RecipeDetailUiState.Loading) {
                 when (val state = uiState) {
                     is RecipeDetailUiState.Error -> Text("Error: ${state.message}")
@@ -91,14 +107,16 @@ fun RecipesDetailScreen(
                             instructions = state.recipe.instructions,
                             preparationTime = state.recipe.preparationTime,
                             servings = state.recipe.servings,
-                            ingredients = state.ingredients
+                            ingredients = state.ingredients,
+                            onImportClick = {
+                                viewModel.importIngredientsToGroceryList(currentUserId)
+                            },
+                            isImporting = importState is ImportState.Loading
                         )
                     }
-
-                    else -> {} // For loading, no need to handle, already showing overlay
+                    else -> {}
                 }
             }
-
         }
     }
 }
@@ -109,14 +127,15 @@ fun RecipeDetailContent(
     instructions: String,
     preparationTime: Int,
     servings: Int,
-    ingredients: List<RecipeIngredientWithDetail>
+    ingredients: List<RecipeIngredientWithDetail>,
+    onImportClick: () -> Unit,
+    isImporting: Boolean
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
     ) {
-
         Text(
             text = title.split(" ").joinToString(" ") { it.replaceFirstChar(Char::titlecase) },
             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
@@ -140,13 +159,39 @@ fun RecipeDetailContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = "Ingredients:",
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = WarmBrown
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Ingredients",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = WarmBrown
+            )
+
+            Button(
+                onClick = onImportClick,
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(vertical = 8.dp),
+                enabled = !isImporting,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DeepRed,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.ShoppingCart,
+                    contentDescription = "Add to Grocery List",
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(if (isImporting) "Adding..." else "Add to Grocery List")
+            }
+        }
 
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -196,4 +241,3 @@ fun InfoWithIcon(icon: ImageVector, text: String, modifier: Modifier = Modifier)
         )
     }
 }
-

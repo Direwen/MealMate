@@ -11,3 +11,18 @@ data class RecipeIngredient(
     val ingredientId: String = "",
     val amount: String = "",
 )
+
+data class GroceryListItem(
+    val id: String = "",
+    val groceryListId: String = "",
+    val ingredientId: String = "",  // Reference to the base ingredient
+    val isPurchased: Boolean = false
+)
+
+data class GroceryListItemSource(
+    val id: String = "",
+    val groceryListId: String = "",  // Added for direct filtering
+    val groceryItemId: String = "",
+    val recipeIngredientId: String = ""
+)
+
