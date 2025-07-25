@@ -202,7 +202,7 @@ class GroceryListItemRepository(
                 .toObject(GroceryListItem::class.java)
             item?.let {
                 groceryListItemCollection.document(itemId)
-                    .update("isPurchased", !it.purchased)
+                    .update("purchased", !it.purchased)
                     .await()
                 Log.d(TAG, "Updated isPurchased to ${!it.purchased}")
             }
