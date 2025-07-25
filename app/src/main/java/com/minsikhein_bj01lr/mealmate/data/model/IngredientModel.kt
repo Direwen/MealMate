@@ -16,7 +16,7 @@ data class GroceryListItem(
     val id: String = "",
     val groceryListId: String = "",
     val ingredientId: String = "",  // Reference to the base ingredient
-    val isPurchased: Boolean = false
+    val purchased: Boolean = false
 )
 
 data class GroceryListItemSource(

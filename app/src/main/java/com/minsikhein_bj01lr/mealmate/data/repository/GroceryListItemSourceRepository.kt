@@ -56,4 +56,47 @@ class GroceryListItemSourceRepository {
             emptyList()
         }
     }
+
+    suspend fun getSourcesByRecipeIngredientIds(
+        groceryListId: String,
+        recipeIngredientIds: List<String>
+    ): List<GroceryListItemSource> {
+        return try {
+            groceryListItemSourceCollection
+                .whereEqualTo("groceryListId", groceryListId)
+                .whereIn("recipeIngredientId", recipeIngredientIds)
+                .get()
+                .await()
+                .toObjects(GroceryListItemSource::class.java)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting sources by recipeIngredientIds", e)
+            emptyList()
+        }
+    }
+
+    suspend fun deleteSources(sourceIds: List<String>) {
+        try {
+            val batch = firestore.batch()
+            sourceIds.forEach { id ->
+                batch.delete(groceryListItemSourceCollection.document(id))
+            }
+            batch.commit().await()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deleting sources", e)
+            throw e
+        }
+    }
+
+    suspend fun getSourcesByGroceryItemId(groceryItemId: String): List<GroceryListItemSource> {
+        return try {
+            groceryListItemSourceCollection
+                .whereEqualTo("groceryItemId", groceryItemId)
+                .get()
+                .await()
+                .toObjects(GroceryListItemSource::class.java)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting sources by groceryItemId", e)
+            emptyList()
+        }
+    }
 }

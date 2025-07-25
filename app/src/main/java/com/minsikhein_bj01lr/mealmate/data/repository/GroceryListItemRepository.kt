@@ -40,7 +40,7 @@ class GroceryListItemRepository(
                     id = UUID.randomUUID().toString(),
                     groceryListId = groceryListId,
                     ingredientId = ingredientId,
-                    isPurchased = false
+                    purchased = false
                 )
                 groceryListItemCollection.document(newItem.id).set(newItem).await()
                 newItem
@@ -53,18 +53,39 @@ class GroceryListItemRepository(
         recipeIngredients: List<RecipeIngredientWithDetail>
     ) {
         try {
-            Log.d(TAG, "Checking for existing grocery item sources to avoid duplicates...")
-            val existingSources = groceryListItemSourceRepository.getGroceryItemSources(
+            Log.d(TAG, "Starting import process for ${recipeIngredients.size} ingredients...")
+
+            // 1. Get all existing sources for these recipe ingredients
+            val existingSources = groceryListItemSourceRepository.getSourcesByRecipeIngredientIds(
                 groceryListId,
                 recipeIngredients.map { it.recipeIngredient.id }
             )
 
-            if (existingSources != null && !existingSources.isEmpty) {
-                Log.d(TAG, "Some ingredients already exist in this grocery list. Skipping addition.")
-                return
+            Log.d(TAG, "Found ${existingSources.size} existing sources to potentially remove")
+
+            // 2. Delete existing sources
+            if (existingSources.isNotEmpty()) {
+                Log.d(TAG, "Deleting ${existingSources.size} existing sources...")
+                groceryListItemSourceRepository.deleteSources(existingSources.map { it.id })
+
+                // 3. Find and delete orphaned grocery items
+                val orphanedItemIds = existingSources
+                    .groupBy { it.groceryItemId }
+                    .filter { (itemId, _) ->
+                        groceryListItemSourceRepository.getSourcesByGroceryItemId(itemId).isEmpty()
+                    }
+                    .keys
+
+                if (orphanedItemIds.isNotEmpty()) {
+                    Log.d(TAG, "Deleting ${orphanedItemIds.size} orphaned grocery items...")
+                    orphanedItemIds.forEach { itemId ->
+                        groceryListItemCollection.document(itemId).delete().await()
+                    }
+                }
             }
 
-            Log.d(TAG, "Adding ${recipeIngredients.size} ingredients to grocery list $groceryListId...")
+            // 4. Add new sources
+            Log.d(TAG, "Adding new sources for ${recipeIngredients.size} ingredients...")
             recipeIngredients.forEach { item ->
                 val groceryItem = getOrCreateGroceryListItem(
                     groceryListId = groceryListId,
@@ -77,9 +98,10 @@ class GroceryListItemRepository(
                     groceryListId = groceryListId
                 )
             }
-            Log.d(TAG, "Successfully added all recipe ingredients to grocery list $groceryListId")
+
+            Log.d(TAG, "Successfully reimported ${recipeIngredients.size} ingredients")
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to add recipe ingredients", e)
+            Log.e(TAG, "Failed to reimport recipe ingredients", e)
             throw e
         }
     }
@@ -162,7 +184,7 @@ class GroceryListItemRepository(
                     id = item.id,
                     name = ingredient.name,
                     amounts = amounts,
-                    isPurchased = item.isPurchased
+                    isPurchased = item.purchased
                 )
             }
         } catch (e: Exception) {
@@ -180,9 +202,9 @@ class GroceryListItemRepository(
                 .toObject(GroceryListItem::class.java)
             item?.let {
                 groceryListItemCollection.document(itemId)
-                    .update("isPurchased", !it.isPurchased)
+                    .update("isPurchased", !it.purchased)
                     .await()
-                Log.d(TAG, "Updated isPurchased to ${!it.isPurchased}")
+                Log.d(TAG, "Updated isPurchased to ${!it.purchased}")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to toggle purchase status for itemId=$itemId", e)
