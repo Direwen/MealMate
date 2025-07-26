@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.minsikhein_bj01lr.mealmate.data.model.GroceryListItem
 import com.minsikhein_bj01lr.mealmate.viewmodel.groceries.GroceryItemDisplay
+import com.minsikhein_bj01lr.mealmate.viewmodel.groceries.RecipeSource
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
@@ -124,16 +125,21 @@ class GroceryListItemRepository(
 
             // Get related data
             val sources = groceryListItemSourceRepository.getSourcesByGroceryListId(groceryListId)
-            val recipeIngredients = recipeIngredientRepository.getByIds(
-                sources.map { it.recipeIngredientId }
-            )
+            val recipeIngredientIds = sources.map { it.recipeIngredientId }
+            val recipeIngredients = recipeIngredientRepository.getByIds(recipeIngredientIds)
+
+            // Get recipe IDs from recipe ingredients
+            val recipeIds = recipeIngredients.map { it.recipeId }.distinct()
+            val recipes = recipeRepository.getRecipesByIds(recipeIds)
+            val recipeMap = recipes.associateBy { it.id }
+
+            // Get ingredients
             val ingredients = ingredientRepository.getIngredientsByIds(
                 recipeIngredients.map { it.ingredientId }.distinct()
             )
-
-            // Create mappings
             val ingredientMap = ingredients.associateBy { it.id }
-            val recipeIngredientMap = recipeIngredients.associateBy { it.id }
+
+            // Group sources by grocery item
             val sourcesByItemId = sources.groupBy { it.groceryItemId }
 
             // Map to display models
@@ -145,12 +151,26 @@ class GroceryListItemRepository(
                         return@mapNotNull null
                     }
 
+                // Create recipe sources list
+                val recipeSources = itemSources.mapNotNull { source ->
+                    val recipeIngredient = recipeIngredients.find { it.id == source.recipeIngredientId }
+                    val recipe = recipeIngredient?.let { recipeMap[it.recipeId] }
+
+                    if (recipeIngredient != null && recipe != null) {
+                        RecipeSource(
+                            recipeName = recipe.title,
+                            amount = recipeIngredient.amount
+                        )
+                    } else {
+                        null
+                    }
+                }
+
                 GroceryItemDisplay(
                     id = item.id,
                     name = ingredient.name,
-                    amounts = itemSources.mapNotNull {
-                        recipeIngredientMap[it.recipeIngredientId]?.amount
-                    },
+                    amounts = recipeSources.map { it.amount },
+                    recipeSources = recipeSources,
                     isPurchased = item.purchased
                 )
             }

@@ -17,32 +17,6 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "GroceryVM"
 
-data class GroceryItemDisplay(
-    val id: String,
-    val name: String,
-    val amounts: List<String>,
-    val isPurchased: Boolean
-)
-
-sealed class GroceryListUiState {
-    object Loading : GroceryListUiState()
-    data class Success(
-        val items: List<GroceryItemDisplay>,
-        val totalItems: Int,
-        val purchasedCount: Int
-    ) : GroceryListUiState()
-    data class Error(val message: String) : GroceryListUiState()
-}
-
-data class GroceryListViewState(
-    val items: List<GroceryItemDisplay> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val totalItems: Int = 0,
-    val purchasedCount: Int = 0,
-    val isRefreshing: Boolean = false
-)
-
 class GroceryListViewModel : ViewModel() {
 
     private val ingredientRepository = IngredientRepository()
@@ -70,7 +44,6 @@ class GroceryListViewModel : ViewModel() {
     fun loadGroceries(currentUserId: String, forceRefresh: Boolean = false) {
         Log.d(TAG, "loadGroceries called with userId=$currentUserId, forceRefresh=$forceRefresh")
 
-        //Set Loading
         _uiState.value = GroceryListUiState.Loading
         _viewState.update {
             it.copy(isLoading = !forceRefresh, isRefreshing = forceRefresh, error = null)
@@ -92,8 +65,8 @@ class GroceryListViewModel : ViewModel() {
 
                 Log.d(TAG, "Grocery list fetched: ${groceryList.id}")
                 val groceryItems = groceryListItemRepository.getAllGroceries(groceryList.id)
+                Log.d(TAG, "Fetched ${groceryItems.size} grocery items with recipe sources")
 
-                Log.d(TAG, "Fetched ${groceryItems.size} grocery items.")
                 val purchasedCount = groceryItems.count { it.isPurchased }
 
                 _uiState.value = GroceryListUiState.Success(
@@ -125,10 +98,7 @@ class GroceryListViewModel : ViewModel() {
     fun togglePurchasedStatus(itemId: String) {
         Log.d(TAG, "Toggling purchase status for itemId=$itemId")
 
-        // Backup the old state before optimistic update
         val previousState = _viewState.value
-
-        // Apply optimistic update immediately
         _viewState.update { currentState ->
             val updatedItems = currentState.items.map { item ->
                 if (item.id == itemId) item.copy(isPurchased = !item.isPurchased)
@@ -140,21 +110,18 @@ class GroceryListViewModel : ViewModel() {
             )
         }
 
-        // Do the real operation in the background
         viewModelScope.launch {
             try {
                 groceryListItemRepository.togglePurchasedStatus(itemId)
                 Log.d(TAG, "Purchase status toggled successfully.")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to toggle status: ${e.message}", e)
-                // Revert to old state if failed
                 _viewState.value = previousState.copy(
                     error = "Failed to update: ${e.message}"
                 )
             }
         }
     }
-
 
     fun clearError() {
         Log.d(TAG, "Clearing error")
@@ -166,3 +133,36 @@ class GroceryListViewModel : ViewModel() {
         loadGroceries(currentUserId, forceRefresh = true)
     }
 }
+
+// Data classes moved to a separate file (recommended)
+data class GroceryItemDisplay(
+    val id: String,
+    val name: String,
+    val amounts: List<String>,
+    val recipeSources: List<RecipeSource>,
+    val isPurchased: Boolean
+)
+
+data class RecipeSource(
+    val recipeName: String,
+    val amount: String
+)
+
+sealed class GroceryListUiState {
+    object Loading : GroceryListUiState()
+    data class Success(
+        val items: List<GroceryItemDisplay>,
+        val totalItems: Int,
+        val purchasedCount: Int
+    ) : GroceryListUiState()
+    data class Error(val message: String) : GroceryListUiState()
+}
+
+data class GroceryListViewState(
+    val items: List<GroceryItemDisplay> = emptyList(),
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val totalItems: Int = 0,
+    val purchasedCount: Int = 0,
+    val isRefreshing: Boolean = false
+)

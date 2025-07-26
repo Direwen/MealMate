@@ -1,6 +1,7 @@
 package com.minsikhein_bj01lr.mealmate.data.repository
 
 import android.util.Log
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.minsikhein_bj01lr.mealmate.data.model.Recipe
 import com.minsikhein_bj01lr.mealmate.data.model.RecipeIngredient
@@ -168,6 +169,23 @@ class RecipeRepository(
         }
     }
 
+    suspend fun getRecipesByIds(recipeIds: List<String>): List<Recipe> {
+        return try {
+            if (recipeIds.isEmpty()) return emptyList()
+
+            recipeIds.chunked(10).flatMap { chunk ->  // Firestore limits to 10 items in 'in' queries
+                recipeCollection
+                    .whereIn(FieldPath.documentId(), chunk)
+                    .get()
+                    .await()
+                    .toObjects(Recipe::class.java)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting recipes by IDs", e)
+            emptyList()
+        }
+    }
+
     suspend fun deleteRecipe(recipeId: String): Boolean {
         return try {
             recipeCollection.document(recipeId).delete().await()
@@ -177,4 +195,5 @@ class RecipeRepository(
             false
         }
     }
+
 }

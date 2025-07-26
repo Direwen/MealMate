@@ -1,6 +1,8 @@
 package com.minsikhein_bj01lr.mealmate.ui.screen.groceries
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,6 +11,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.LocalGroceryStore
@@ -137,7 +141,7 @@ fun GroceriesListScreen(
                                     Text(
                                         "${(percent * 100).toInt()}%",
                                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = if (percent == 1f) Color(0xFF43A047) else CreamyYellow
+                                        color = if (percent == 1f) Color(0xFFEAFCA9) else CreamyYellow
                                     )
                                 }
                             }
@@ -215,67 +219,115 @@ fun GroceriesListScreen(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(8.dp)  // Reduced spacing
                         ) {
+
                             items(state.items) { item ->
-                                Card(
+                                var expanded by remember { mutableStateOf(false) }
+
+                                val isPurchased = item.isPurchased
+
+                                // Card background color
+                                val backgroundColor = when {
+                                    isPurchased && expanded -> WarmBrown.copy(alpha = 0.15f)
+                                    isPurchased && !expanded -> Color.Transparent
+                                    !isPurchased && expanded -> WarmBrown
+                                    else -> Color.Transparent
+                                }
+
+                                // Primary text color (ingredient name)
+                                val primaryTextColor = when {
+                                    isPurchased && expanded -> WarmBrown.copy(alpha = 0.8f)
+                                    isPurchased && !expanded -> WarmBrown.copy(alpha = 0.5f)
+                                    !isPurchased && expanded -> SoftCreamyYellow
+                                    else -> DeepRed
+                                }
+
+                                // Secondary text color (detail text)
+                                val secondaryTextColor = when {
+                                    isPurchased -> primaryTextColor.copy(alpha = 0.7f)
+                                    expanded -> SoftCreamyYellow
+                                    else -> WarmBrown
+                                }
+
+                                Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 4.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = CreamyYellow
-                                    ),
-                                    elevation = CardDefaults.cardElevation(2.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(backgroundColor)
+                                        .padding(12.dp)
                                 ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable { viewModel.togglePurchasedStatus(item.id) }  // Make whole row clickable
-                                            .padding(16.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Column(
-                                            modifier = Modifier.weight(1f)
+                                    Column {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.fillMaxWidth()
                                         ) {
-                                            Text(
-                                                text = item.name,
-                                                style = MaterialTheme.typography.bodyLarge.copy(
-                                                    textDecoration = if (item.isPurchased) TextDecoration.LineThrough else TextDecoration.None,
-                                                    fontWeight = if (item.isPurchased) FontWeight.Normal else FontWeight.Medium
-                                                ),
-                                                color = if (item.isPurchased) WarmBrown.copy(alpha = 0.6f) else DeepRed  // Changed to DeepRed for better contrast
-                                            )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(
-                                                item.amounts.joinToString(", "),
-                                                style = MaterialTheme.typography.bodyMedium.copy(
-                                                    textDecoration = if (item.isPurchased) TextDecoration.LineThrough else TextDecoration.None
-                                                ),
-                                                color = if (item.isPurchased) WarmBrown.copy(alpha = 0.5f) else WarmBrown
-                                            )
-                                        }
+                                            Column(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .clickable { viewModel.togglePurchasedStatus(item.id) }
+                                            ) {
+                                                Text(
+                                                    text = item.name.uppercase(),
+                                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                                        fontWeight = FontWeight.Bold,
+                                                        textDecoration = if (isPurchased) TextDecoration.LineThrough else TextDecoration.None
+                                                    ),
+                                                    color = primaryTextColor
+                                                )
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                            }
 
-                                        // Visual indicator instead of checkbox
-                                        Box(
-                                            modifier = Modifier
-                                                .size(24.dp)
-                                                .clip(CircleShape)
-                                                .background(
-                                                    if (item.isPurchased) DeepRed.copy(alpha = 0.2f) else Color.Transparent
-                                                ),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            if (item.isPurchased) {
+                                            // Collapse Button (Always visible, tinted if purchased)
+                                            IconButton(
+                                                onClick = { expanded = !expanded },
+                                                modifier = Modifier
+                                                    .clip(CircleShape)
+                                                    .padding(6.dp)
+                                                    .size(32.dp)
+                                            ) {
                                                 Icon(
-                                                    imageVector = Icons.Outlined.Check,
-                                                    contentDescription = "Purchased",
-                                                    tint = DeepRed,
-                                                    modifier = Modifier.size(18.dp)
+                                                    imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                                    contentDescription = if (expanded) "Collapse" else "Expand",
+                                                    tint = primaryTextColor
                                                 )
                                             }
                                         }
+
+                                        // Expanded details
+                                        AnimatedVisibility(visible = expanded) {
+                                            Column(modifier = Modifier.padding(top = 8.dp, start = 4.dp)) {
+                                                if (item.recipeSources.isNotEmpty()) {
+                                                    Text(
+                                                        text = "From recipes:",
+                                                        style = MaterialTheme.typography.labelSmall.copy(
+                                                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 1.2f
+                                                        ),
+                                                        color = secondaryTextColor
+                                                    )
+                                                    item.recipeSources.forEach { source ->
+                                                        Text(
+                                                            "- ${source.amount} for ${source.recipeName}",
+                                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                                fontSize = MaterialTheme.typography.bodySmall.fontSize * 1.2f
+                                                            ),
+                                                            color = secondaryTextColor
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        Divider(
+                                            modifier = Modifier.padding(horizontal = 16.dp),
+                                            thickness = 1.dp,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                                        )
                                     }
                                 }
                             }
+
+
+
+
                         }
                     }
                 }
