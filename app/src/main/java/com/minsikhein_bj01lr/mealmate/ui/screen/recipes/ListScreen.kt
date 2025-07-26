@@ -89,23 +89,75 @@ fun RecipesListScreen(
                 }
             }
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                items(
-                    items = recipes,
-                    key = { it.id },
-                ) { recipe ->
-                    SwipeToDismissItem(
-                        item = recipe,
-                        onRemove = { viewModel.deleteRecipe(recipe.id, onSuccess = {}, onError = {}) },
-                        modifier = Modifier.animateItem(),
-                        navController = navController,
-                        viewModel = viewModel
-                    )
+            if (recipes.isEmpty()) {
+                EmptyRecipesPrompt(navController)
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    items(
+                        items = recipes,
+                        key = { it.id },
+                    ) { recipe ->
+                        SwipeToDismissItem(
+                            item = recipe,
+                            onRemove = { recipeId ->
+                                // Optimistic deletion - remove locally first
+                                viewModel.removeRecipeLocally(recipeId)
+                                viewModel.deleteRecipe(
+                                    recipeId = recipeId,
+                                    onSuccess = { /* Already handled by local removal */ },
+                                    onError = { e ->
+                                        // Rollback if error occurs
+                                        viewModel.getRecipes(currentUserId)
+                                    }
+                                )
+                            },
+                            modifier = Modifier.animateItem(),
+                            navController = navController,
+                            viewModel = viewModel
+                        )
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun EmptyRecipesPrompt(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.SetMeal,
+            contentDescription = "No recipes",
+            modifier = Modifier.size(48.dp),
+            tint = Neutral10
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "No recipes yet",
+            style = MaterialTheme.typography.titleLarge,
+            color = DeepRed
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Create your first recipe to get started",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Neutral10
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = { navController.navigate(Routes.RECIPES_CREATE) },
+            colors = ButtonDefaults.buttonColors(DeepRed)
+        ) {
+            Text("Create Recipe")
         }
     }
 }

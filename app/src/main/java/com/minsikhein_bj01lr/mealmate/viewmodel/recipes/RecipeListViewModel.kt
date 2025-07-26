@@ -65,4 +65,8 @@ class RecipeListViewModel: ViewModel() {
             }
         }
     }
+
+    fun removeRecipeLocally(recipeId: String) {
+        _recipes.value = _recipes.value.filter { it.id != recipeId }
+    }
 }
