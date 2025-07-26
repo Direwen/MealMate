@@ -45,7 +45,8 @@ class RecipeDetailViewModel : ViewModel() {
     private val groceryListItemSourceRepository = GroceryListItemSourceRepository()
     private val recipeRepository = RecipeRepository(
         ingredientRepository = ingredientRepository,
-        recipeIngredientRepository = RecipeIngredientRepository(ingredientRepository = ingredientRepository)
+        recipeIngredientRepository = RecipeIngredientRepository(ingredientRepository = ingredientRepository),
+        groceryListItemSourceRepository = groceryListItemSourceRepository,
     )
     private val recipeIngredientRepository = RecipeIngredientRepository(
         ingredientRepository = ingredientRepository

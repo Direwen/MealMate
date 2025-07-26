@@ -11,7 +11,8 @@ import java.util.*
 
 class RecipeRepository(
     private val ingredientRepository: IngredientRepository,
-    private val recipeIngredientRepository: RecipeIngredientRepository
+    private val recipeIngredientRepository: RecipeIngredientRepository,
+    private val groceryListItemSourceRepository: GroceryListItemSourceRepository,
 ) {
 
     private val firestore = FirebaseFirestore.getInstance()
@@ -104,42 +105,68 @@ class RecipeRepository(
         }
     }
 
-    suspend fun updateRecipeWithIngredients(uiState: UpdateRecipeUiState) {
+    suspend fun updateRecipeWithIngredients(uiState: UpdateRecipeUiState, groceryListItemRepository: GroceryListItemRepository) {
         val recipeId = uiState.id
 
         try {
-            // 1. Update main recipe fields (only editable ones)
-            val updatedFields = mapOf(
+            // 1. Update recipe metadata - FIXED UPDATE SYNTAX
+            val updates = mapOf(
                 "title" to uiState.title,
                 "instructions" to uiState.instructions,
                 "preparationTime" to uiState.preparationTime,
-                "servings" to uiState.servings
+                "servings" to uiState.servings,
+                "updatedAt" to Date()
             )
-            recipeCollection.document(recipeId).update(updatedFields).await()
+            recipeCollection.document(recipeId).update(updates).await()
 
-            // 2. Delete old RecipeIngredient links
-            recipeIngredientRepository.deleteIngredientsByRecipeId(recipeId)
+            // 2. Get current ingredients
+            val currentIngredients = recipeIngredientRepository.getRecipeIngredients(recipeId) ?: emptyList()
 
-            // 3. Recreate RecipeIngredient links
-            for (item in uiState.ingredients) {
-                val ingredient = ingredientRepository.getOrCreateIngredient(item.name)
+            // 3. Create maps for comparison
+            val currentIngredientMap = currentIngredients.associate {
+                ingredientRepository.getIngredientById(it.ingredientId)?.name to it
+            }.filterKeys { it != null }.mapKeys { it.key!! }
 
-                if (ingredient != null) {
-                    val recipeIngredient = RecipeIngredient(
-                        id = UUID.randomUUID().toString(),
-                        recipeId = recipeId,
-                        ingredientId = ingredient.id,
-                        amount = item.amount
-                    )
-                    recipeIngredientRepository.createIngredientRecipe(recipeIngredient)
+            // 4. Process deletions
+            uiState.ingredients.map { it.name }.let { newNames ->
+                currentIngredientMap.filterKeys { it !in newNames }.values.forEach { toRemove ->
+                    // Delete from recipe ingredients
+                    recipeIngredientRepository.deleteIngredientRecipe(toRemove.id)
+
+                    // Clean up grocery list links
+                    groceryListItemSourceRepository.deleteSourcesByRecipeIngredientId(toRemove.id)
+
+                    // Optional: Delete orphaned grocery items
+                    val sources = groceryListItemSourceRepository.getSourcesByRecipeIngredientId(toRemove.id)
+                    sources.firstOrNull()?.groceryItemId?.let { itemId ->
+                        val remainingSources = groceryListItemSourceRepository.getSourcesByGroceryItemId(itemId)
+                        if (remainingSources.size <= 1) { // Only this source or none
+                            groceryListItemRepository.deleteGroceryItem(itemId)
+                        }
+                    }
                 }
             }
+
+            // 5. Process additions
+            uiState.ingredients.forEach { newIngredient ->
+                if (!currentIngredientMap.containsKey(newIngredient.name)) {
+                    ingredientRepository.getOrCreateIngredient(newIngredient.name)?.let { ingredient ->
+                        val recipeIngredient = RecipeIngredient(
+                            id = UUID.randomUUID().toString(),
+                            recipeId = recipeId,
+                            ingredientId = ingredient.id,
+                            amount = newIngredient.amount
+                        )
+                        recipeIngredientRepository.createIngredientRecipe(recipeIngredient)
+                    }
+                }
+            }
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to update recipe with ingredients", e)
             throw e
         }
     }
-
 
     suspend fun deleteRecipe(recipeId: String): Boolean {
         return try {

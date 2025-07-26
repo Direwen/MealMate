@@ -99,4 +99,33 @@ class GroceryListItemSourceRepository {
             emptyList()
         }
     }
+
+
+    suspend fun deleteSourcesByRecipeIngredientId(recipeIngredientId: String) {
+        try {
+            val sources = groceryListItemSourceCollection
+                .whereEqualTo("recipeIngredientId", recipeIngredientId)
+                .get()
+                .await()
+
+            sources.forEach { source ->
+                groceryListItemSourceCollection.document(source.id).delete().await()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to delete sources for recipeIngredient $recipeIngredientId", e)
+        }
+    }
+
+    suspend fun getSourcesByRecipeIngredientId(recipeIngredientId: String): List<GroceryListItemSource> {
+        return try {
+            groceryListItemSourceCollection
+                .whereEqualTo("recipeIngredientId", recipeIngredientId)
+                .get()
+                .await()
+                .toObjects(GroceryListItemSource::class.java)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting sources for recipeIngredient $recipeIngredientId", e)
+            emptyList()
+        }
+    }
 }

@@ -45,6 +45,16 @@ class RecipeIngredientRepository(
         }
     }
 
+    suspend fun deleteIngredientRecipe(id: String): Boolean {
+        return try {
+            recipeIngredientCollection.document(id).delete().await()
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to delete recipe ingredient $id", e)
+            false
+        }
+    }
+
     suspend fun getByIds(ids: List<String>): List<RecipeIngredient> {
         return try {
             if (ids.isEmpty()) return emptyList()

@@ -2,6 +2,8 @@ package com.minsikhein_bj01lr.mealmate.viewmodel.recipes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.minsikhein_bj01lr.mealmate.data.repository.GroceryListItemRepository
+import com.minsikhein_bj01lr.mealmate.data.repository.GroceryListItemSourceRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.IngredientRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeIngredientRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeRepository
@@ -25,9 +27,20 @@ data class UpdateRecipeUiState(
 class RecipeUpdateViewModel : ViewModel() {
 
     private val ingredientRepository = IngredientRepository()
+    private val groceryListItemSourceRepository = GroceryListItemSourceRepository()
     private val recipeRepository = RecipeRepository(
         ingredientRepository = ingredientRepository,
-        recipeIngredientRepository = RecipeIngredientRepository(ingredientRepository)
+        recipeIngredientRepository = RecipeIngredientRepository(ingredientRepository),
+        groceryListItemSourceRepository = groceryListItemSourceRepository
+    )
+    private val recipeIngredientRepository = RecipeIngredientRepository(
+        ingredientRepository = ingredientRepository
+    )
+    private val groceryListItemRepository = GroceryListItemRepository(
+        ingredientRepository = ingredientRepository,
+        recipeRepository =recipeRepository,
+        recipeIngredientRepository = recipeIngredientRepository,
+        groceryListItemSourceRepository = groceryListItemSourceRepository
     )
 
     private val _uiState = MutableStateFlow(UpdateRecipeUiState())
@@ -91,7 +104,7 @@ class RecipeUpdateViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                recipeRepository.updateRecipeWithIngredients(current)
+                recipeRepository.updateRecipeWithIngredients(current, groceryListItemRepository)
                 onSuccess()
             } catch (e: Exception) {
                 _uiState.value = current.copy(
