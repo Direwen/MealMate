@@ -65,4 +65,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.5")
     // https://mvnrepository.com/artifact/androidx.compose.material/material-icons-extended
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    // https://mvnrepository.com/artifact/androidx.compose.foundation/foundation
+    runtimeOnly("androidx.compose.foundation:foundation:1.8.3")
+    implementation("androidx.compose.material3:material3:1.3.2")
+
 }

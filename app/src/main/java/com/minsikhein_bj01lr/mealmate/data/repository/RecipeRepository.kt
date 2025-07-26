@@ -186,9 +186,37 @@ class RecipeRepository(
         }
     }
 
-    suspend fun deleteRecipe(recipeId: String): Boolean {
+    suspend fun deleteRecipe(
+        recipeId: String,
+        groceryListItemRepository: GroceryListItemRepository
+    ): Boolean {
         return try {
+            // 1. Get all recipe ingredients first
+            val recipeIngredients = recipeIngredientRepository.getRecipeIngredients(recipeId) ?: emptyList()
+
+            // 2. Delete all grocery list sources and orphaned items
+            recipeIngredients.forEach { recipeIngredient ->
+                // Get all sources for this recipe ingredient
+                val sources = groceryListItemSourceRepository.getSourcesByRecipeIngredientId(recipeIngredient.id)
+
+                // Delete all sources
+                groceryListItemSourceRepository.deleteSources(sources.map { it.id })
+
+                // Check and delete orphaned grocery items
+                sources.groupBy { it.groceryItemId }.forEach { (itemId, _) ->
+                    val remainingSources = groceryListItemSourceRepository.getSourcesByGroceryItemId(itemId)
+                    if (remainingSources.isEmpty()) {
+                        groceryListItemRepository.deleteGroceryItem(itemId)
+                    }
+                }
+            }
+
+            // 3. Delete all recipe ingredients
+            recipeIngredientRepository.deleteIngredientsByRecipeId(recipeId)
+
+            // 4. Finally delete the recipe itself
             recipeCollection.document(recipeId).delete().await()
+
             true
         } catch (e: Exception) {
             Log.e(TAG, "Error deleting recipe with id=$recipeId", e)
