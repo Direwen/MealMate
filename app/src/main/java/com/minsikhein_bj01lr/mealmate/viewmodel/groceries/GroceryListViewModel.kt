@@ -124,30 +124,37 @@ class GroceryListViewModel : ViewModel() {
 
     fun togglePurchasedStatus(itemId: String) {
         Log.d(TAG, "Toggling purchase status for itemId=$itemId")
+
+        // Backup the old state before optimistic update
+        val previousState = _viewState.value
+
+        // Apply optimistic update immediately
+        _viewState.update { currentState ->
+            val updatedItems = currentState.items.map { item ->
+                if (item.id == itemId) item.copy(isPurchased = !item.isPurchased)
+                else item
+            }
+            currentState.copy(
+                items = updatedItems,
+                purchasedCount = updatedItems.count { it.isPurchased }
+            )
+        }
+
+        // Do the real operation in the background
         viewModelScope.launch {
             try {
                 groceryListItemRepository.togglePurchasedStatus(itemId)
                 Log.d(TAG, "Purchase status toggled successfully.")
-
-                _viewState.update { currentState ->
-                    val updatedItems = currentState.items.map { item ->
-                        if (item.id == itemId) {
-                            item.copy(isPurchased = !item.isPurchased)
-                        } else item
-                    }
-                    currentState.copy(
-                        items = updatedItems,
-                        purchasedCount = updatedItems.count { it.isPurchased }
-                    )
-                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to toggle status: ${e.message}", e)
-                _viewState.update {
-                    it.copy(error = "Failed to update: ${e.message}")
-                }
+                // Revert to old state if failed
+                _viewState.value = previousState.copy(
+                    error = "Failed to update: ${e.message}"
+                )
             }
         }
     }
+
 
     fun clearError() {
         Log.d(TAG, "Clearing error")

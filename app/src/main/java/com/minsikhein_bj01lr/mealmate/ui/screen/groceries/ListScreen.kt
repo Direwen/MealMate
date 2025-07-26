@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.LocalGroceryStore
 import androidx.compose.material3.*
@@ -68,11 +70,12 @@ fun GroceriesListScreen(
                     if (state.totalItems > 0) {
                         val percent = (state.purchasedCount.toFloat() / state.totalItems).coerceIn(0f, 1f)
 
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
-                            colors = CardDefaults.cardColors(containerColor = CreamyYellow),
+                            colors = CardDefaults.cardColors(containerColor = DeepRed),
                             shape = RoundedCornerShape(16.dp),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
@@ -80,7 +83,7 @@ fun GroceriesListScreen(
                                 Text(
                                     text = "Your Grocery Progress",
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                                    color = DeepRed
+                                    color = CreamyYellow
                                 )
 
                                 Spacer(modifier = Modifier.height(12.dp))
@@ -91,8 +94,8 @@ fun GroceriesListScreen(
                                         .fillMaxWidth()
                                         .height(8.dp)
                                         .clip(RoundedCornerShape(4.dp)),
-                                    color = DeepRed,
-                                    trackColor = WarmBrown.copy(alpha = 0.2f)
+                                    color = SoftOrange, // or WarmBrown
+                                    trackColor = CreamyYellow.copy(alpha = 0.2f)
                                 )
 
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -101,20 +104,45 @@ fun GroceriesListScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text("🧾 Total: ${state.totalItems}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = WarmBrown)
-                                    Text("✅ Purchased: ${state.purchasedCount}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = WarmBrown)
+                                    Row {
+                                        Icon(
+                                            imageVector = Icons.Default.Info,
+                                            contentDescription = "Total items",
+                                            tint = CreamyYellow,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            "Total: ${state.totalItems}",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = CreamyYellow
+                                        )
+                                    }
+
+                                    Row {
+                                        Icon(
+                                            imageVector = Icons.Default.CheckCircle,
+                                            contentDescription = "Purchased items",
+                                            tint = CreamyYellow,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            "Purchased: ${state.purchasedCount}",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = CreamyYellow
+                                        )
+                                    }
+
                                     Text(
                                         "${(percent * 100).toInt()}%",
                                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = if (percent == 1f) Color(0xFF43A047) else DeepRed
+                                        color = if (percent == 1f) Color(0xFF43A047) else CreamyYellow
                                     )
                                 }
                             }
                         }
+
 
                         Spacer(modifier = Modifier.height(16.dp))
                     }
