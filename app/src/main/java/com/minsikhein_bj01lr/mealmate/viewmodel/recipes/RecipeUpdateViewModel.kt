@@ -21,7 +21,8 @@ data class UpdateRecipeUiState(
     val instructions: String = "",
     val preparationTime: Int = 1,
     val servings: Int = 1,
-    val imageUri: Uri? = null,
+    val imageUri: Uri? = null,          // For new image selection
+    val currentImagePath: String = "",  // Existing image path
     val ingredients: List<IngredientInput> = emptyList(),
     val isLoading: Boolean = false,
     val error: String = ""
@@ -53,6 +54,11 @@ class RecipeUpdateViewModel(
     private val _uiState = MutableStateFlow(UpdateRecipeUiState())
     val uiState: StateFlow<UpdateRecipeUiState> = _uiState
 
+    fun setImageUri(uri: Uri?) {
+        println("New image URI selected: $uri") // Add this for debugging
+        _uiState.value = _uiState.value.copy(imageUri = uri)
+    }
+
     fun loadRecipeForEditing(recipeId: String) {
         _uiState.value = _uiState.value.copy(isLoading = true, error = "")
 
@@ -74,6 +80,8 @@ class RecipeUpdateViewModel(
                     instructions = recipe.instructions,
                     preparationTime = recipe.preparationTime,
                     servings = recipe.servings,
+                    imageUri = null,
+                    currentImagePath = recipe.imagePath,
                     ingredients = ingredients.map {
                         IngredientInput(
                             name = it.ingredient.name,

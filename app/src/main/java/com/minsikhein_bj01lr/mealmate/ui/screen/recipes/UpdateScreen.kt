@@ -1,5 +1,8 @@
 package com.minsikhein_bj01lr.mealmate.ui.screen.recipes
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -35,6 +38,14 @@ fun RecipesUpdateScreen(
         RecipeUpdateViewModel { context }
     }
     val uiState by viewModel.uiState.collectAsState()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        println("Image selection result: $uri")
+        uri?.let { viewModel.setImageUri(it) }
+    }
+
 
     LaunchedEffect(recipeId) {
         viewModel.loadRecipeForEditing(recipeId)
@@ -84,6 +95,8 @@ fun RecipesUpdateScreen(
                             preparationTime = uiState.preparationTime,
                             servings = uiState.servings,
                             ingredients = uiState.ingredients,
+                            imageUri = uiState.imageUri,
+                            currentImagePath = uiState.currentImagePath,
                             isLoading = uiState.isLoading,
                             error = uiState.error
                         ),
@@ -104,7 +117,8 @@ fun RecipesUpdateScreen(
                                 onSuccess = { navController.popBackStack() },
                                 onError = { e -> println("Update Error: ${e.message}") }
                             )
-                        }
+                        },
+                        onImageSelect = { launcher.launch("image/*") }
                     )
                 }
             }
