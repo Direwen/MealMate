@@ -1,5 +1,6 @@
 package com.minsikhein_bj01lr.mealmate.viewmodel.groceries
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +10,7 @@ import com.minsikhein_bj01lr.mealmate.data.repository.GroceryListRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.IngredientRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeIngredientRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeRepository
+import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +19,9 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "GroceryVM"
 
-class GroceryListViewModel : ViewModel() {
+class GroceryListViewModel(
+    private val contextProvider: () -> Context
+) : ViewModel() {
 
     private val ingredientRepository = IngredientRepository()
     private val groceryListRepository = GroceryListRepository()
@@ -26,6 +30,7 @@ class GroceryListViewModel : ViewModel() {
         ingredientRepository = ingredientRepository,
         recipeIngredientRepository = RecipeIngredientRepository(ingredientRepository),
         groceryListItemSourceRepository = groceryListItemSourceRepository,
+        imageStorageHelper = ImageStorageHelper(contextProvider().applicationContext)
     )
     private val recipeIngredientRepository = RecipeIngredientRepository(ingredientRepository)
     private val groceryListItemRepository = GroceryListItemRepository(

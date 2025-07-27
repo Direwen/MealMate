@@ -1,17 +1,23 @@
 package com.minsikhein_bj01lr.mealmate.ui.component.recipes
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateTextField
+import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral100
 import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
@@ -22,7 +28,8 @@ import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.IngredientInput
 fun CreateRecipeForm(
     uiState: CreateRecipeUiState,
     onUiStateChange: (CreateRecipeUiState) -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
+    onImageSelect: () -> Unit
 ) {
     var newIngredientName by remember { mutableStateOf("") }
     var newIngredientAmount by remember { mutableStateOf("") }
@@ -32,6 +39,39 @@ fun CreateRecipeForm(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(CreamyYellow)
+                .clickable { onImageSelect() }
+        ) {
+            if (uiState.imageUri != null) {
+                Image(
+                    painter = rememberImagePainter(uiState.imageUri),
+                    contentDescription = "Recipe image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AddPhotoAlternate,
+                        contentDescription = "Add image",
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Text("Add Recipe Image")
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Title Field
         MealMateTextField(
             value = uiState.title,

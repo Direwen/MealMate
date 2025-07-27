@@ -9,6 +9,7 @@ data class Recipe(
     val instructions: String = "",
     val preparationTime: Int = 3, // in minutes
     val servings: Int = 1,
+    val imagePath: String = "",
     val createdAt: Date = Date(),
     val updatedAt: Date = Date()
 )

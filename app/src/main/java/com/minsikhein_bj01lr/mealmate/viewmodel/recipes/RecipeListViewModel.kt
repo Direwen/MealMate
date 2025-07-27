@@ -1,5 +1,6 @@
 package com.minsikhein_bj01lr.mealmate.viewmodel.recipes
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.minsikhein_bj01lr.mealmate.data.model.Recipe
@@ -8,12 +9,15 @@ import com.minsikhein_bj01lr.mealmate.data.repository.GroceryListItemSourceRepos
 import com.minsikhein_bj01lr.mealmate.data.repository.IngredientRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeIngredientRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeRepository
+import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 
-class RecipeListViewModel: ViewModel() {
+class RecipeListViewModel(
+    private val contextProvider: () -> Context
+): ViewModel() {
     private val ingredientRepository = IngredientRepository()
     private val groceryListItemSourceRepository = GroceryListItemSourceRepository()
     private val recipeIngredientRepository = RecipeIngredientRepository(
@@ -22,7 +26,8 @@ class RecipeListViewModel: ViewModel() {
     private val recipeRepository = RecipeRepository(
         ingredientRepository = ingredientRepository,
         recipeIngredientRepository = recipeIngredientRepository,
-        groceryListItemSourceRepository = groceryListItemSourceRepository
+        groceryListItemSourceRepository = groceryListItemSourceRepository,
+        imageStorageHelper = ImageStorageHelper(contextProvider().applicationContext)
     )
     private val groceryListItemRepository = GroceryListItemRepository(
         ingredientRepository = ingredientRepository,
@@ -50,15 +55,17 @@ class RecipeListViewModel: ViewModel() {
         onSuccess: () -> Unit,
         onError: (Exception) -> Unit
     ) {
+
+        // First remove locally for instant feedback
+        removeRecipeLocally(recipeId)
+
         viewModelScope.launch {
             try {
                 val success = recipeRepository.deleteRecipe(recipeId, groceryListItemRepository)
-                if (success) {
-                    // Remove from local state
-                    _recipes.value = _recipes.value.filter { it.id != recipeId }
-                    onSuccess()
-                } else {
+                if (!success) {
                     onError(Exception("Failed to delete recipe"))
+                } else {
+                    onSuccess()
                 }
             } catch (e: Exception) {
                 onError(e)

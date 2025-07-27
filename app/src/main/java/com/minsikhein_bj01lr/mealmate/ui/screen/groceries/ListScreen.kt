@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -34,13 +35,17 @@ import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.ui.theme.*
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.groceries.GroceryListViewModel
+import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
 
 @Composable
 fun GroceriesListScreen(
     navController: NavController,
     authViewModel: AuthViewModel,
-    viewModel: GroceryListViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val viewModel: GroceryListViewModel = viewModel {
+        GroceryListViewModel { context }
+    }
     val currentUserId = authViewModel.currentUser?.uid ?: return
     val state by viewModel.viewState.collectAsState()
 

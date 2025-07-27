@@ -1,5 +1,7 @@
 package com.minsikhein_bj01lr.mealmate.viewmodel.recipes
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.minsikhein_bj01lr.mealmate.data.repository.GroceryListItemRepository
@@ -7,6 +9,7 @@ import com.minsikhein_bj01lr.mealmate.data.repository.GroceryListItemSourceRepos
 import com.minsikhein_bj01lr.mealmate.data.repository.IngredientRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeIngredientRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeRepository
+import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -18,20 +21,25 @@ data class UpdateRecipeUiState(
     val instructions: String = "",
     val preparationTime: Int = 1,
     val servings: Int = 1,
+    val imageUri: Uri? = null,          // For new image selection
+    val currentImagePath: String = "",  // Existing image path
     val ingredients: List<IngredientInput> = emptyList(),
     val isLoading: Boolean = false,
     val error: String = ""
 )
 
 
-class RecipeUpdateViewModel : ViewModel() {
+class RecipeUpdateViewModel(
+    private val contextProvider: () -> Context
+) : ViewModel() {
 
     private val ingredientRepository = IngredientRepository()
     private val groceryListItemSourceRepository = GroceryListItemSourceRepository()
     private val recipeRepository = RecipeRepository(
         ingredientRepository = ingredientRepository,
         recipeIngredientRepository = RecipeIngredientRepository(ingredientRepository),
-        groceryListItemSourceRepository = groceryListItemSourceRepository
+        groceryListItemSourceRepository = groceryListItemSourceRepository,
+        imageStorageHelper = ImageStorageHelper(contextProvider().applicationContext)
     )
     private val recipeIngredientRepository = RecipeIngredientRepository(
         ingredientRepository = ingredientRepository
@@ -45,6 +53,11 @@ class RecipeUpdateViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(UpdateRecipeUiState())
     val uiState: StateFlow<UpdateRecipeUiState> = _uiState
+
+    fun setImageUri(uri: Uri?) {
+        println("New image URI selected: $uri") // Add this for debugging
+        _uiState.value = _uiState.value.copy(imageUri = uri)
+    }
 
     fun loadRecipeForEditing(recipeId: String) {
         _uiState.value = _uiState.value.copy(isLoading = true, error = "")
@@ -67,6 +80,8 @@ class RecipeUpdateViewModel : ViewModel() {
                     instructions = recipe.instructions,
                     preparationTime = recipe.preparationTime,
                     servings = recipe.servings,
+                    imageUri = null,
+                    currentImagePath = recipe.imagePath,
                     ingredients = ingredients.map {
                         IngredientInput(
                             name = it.ingredient.name,

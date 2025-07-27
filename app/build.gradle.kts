@@ -68,5 +68,7 @@ dependencies {
     // https://mvnrepository.com/artifact/androidx.compose.foundation/foundation
     runtimeOnly("androidx.compose.foundation:foundation:1.8.3")
     implementation("androidx.compose.material3:material3:1.3.2")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
 
 }

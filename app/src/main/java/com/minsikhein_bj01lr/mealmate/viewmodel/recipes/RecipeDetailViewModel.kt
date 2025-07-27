@@ -1,5 +1,6 @@
 package com.minsikhein_bj01lr.mealmate.viewmodel.recipes
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.minsikhein_bj01lr.mealmate.data.model.Recipe
@@ -10,6 +11,7 @@ import com.minsikhein_bj01lr.mealmate.data.repository.IngredientRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeIngredientRepository
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeIngredientWithDetail
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeRepository
+import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +39,9 @@ sealed class ImportState {
 
 
 
-class RecipeDetailViewModel : ViewModel() {
+class RecipeDetailViewModel(
+    private val contextProvider: () -> Context
+) : ViewModel() {
 
     //Repositories
     private val ingredientRepository = IngredientRepository()
@@ -47,6 +51,7 @@ class RecipeDetailViewModel : ViewModel() {
         ingredientRepository = ingredientRepository,
         recipeIngredientRepository = RecipeIngredientRepository(ingredientRepository = ingredientRepository),
         groceryListItemSourceRepository = groceryListItemSourceRepository,
+        imageStorageHelper = ImageStorageHelper(contextProvider().applicationContext)
     )
     private val recipeIngredientRepository = RecipeIngredientRepository(
         ingredientRepository = ingredientRepository
