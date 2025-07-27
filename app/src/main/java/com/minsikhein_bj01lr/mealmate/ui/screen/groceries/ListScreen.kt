@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.LocalGroceryStore
 import androidx.compose.material3.*
@@ -64,12 +65,33 @@ fun GroceriesListScreen(
                 .padding(16.dp)
                 .background(SoftCreamyYellow)
         ) {
-            // Header row
-            Text(
-                text = "My Grocery List",
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                color = DeepRed
-            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "My Grocery List",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                    color = DeepRed
+                )
+
+                IconButton(
+                    onClick = { viewModel.shareGroceryList() },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(DeepRed, shape = CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = "Share grocery list",
+                        tint = CreamyYellow
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

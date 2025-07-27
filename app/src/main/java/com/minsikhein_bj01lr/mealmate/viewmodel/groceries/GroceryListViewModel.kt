@@ -1,6 +1,8 @@
 package com.minsikhein_bj01lr.mealmate.viewmodel.groceries
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -125,6 +127,37 @@ class GroceryListViewModel(
                     error = "Failed to update: ${e.message}"
                 )
             }
+        }
+    }
+
+    fun shareGroceryList() {
+        val context = contextProvider()
+        val items = _viewState.value.items
+        if (items.isEmpty()) {
+            _viewState.update { it.copy(error = "No items to share") }
+            return
+        }
+
+        val message = buildString {
+            append("🍎 MealMate Grocery List 🛒\n\n")
+            items.forEach { item ->
+                append("- ${item.name}")
+                if (item.recipeSources.isNotEmpty()) {
+                    append(" (${item.recipeSources.joinToString { it.amount }})")
+                }
+                append("\n")
+            }
+            append("\nCan you pick these up? Thanks! 😊")
+        }
+
+        try {
+            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("smsto:")
+                putExtra("sms_body", message)
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            _viewState.update { it.copy(error = "No messaging app found") }
         }
     }
 
