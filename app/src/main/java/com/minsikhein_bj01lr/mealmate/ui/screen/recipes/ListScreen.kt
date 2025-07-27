@@ -24,7 +24,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
 import com.minsikhein_bj01lr.mealmate.data.model.Recipe
+import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
@@ -295,6 +300,14 @@ fun SwipeToDismissItem(
 
 @Composable
 fun RecipeOverviewRow(recipe: Recipe, navController: NavController) {
+    val context = LocalContext.current
+    val imageStorageHelper = remember { ImageStorageHelper(context.applicationContext) }
+    val imageBitmap = remember(recipe.imagePath) {
+        recipe.imagePath.takeIf { it.isNotEmpty() }?.let { path ->
+            imageStorageHelper.loadImage(path)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -302,58 +315,83 @@ fun RecipeOverviewRow(recipe: Recipe, navController: NavController) {
                 navController.navigate("${Routes.RECIPES_DETAIL}/${recipe.id}")
             }
             .background(SoftCreamyYellow)
-            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            // Title and Edit Button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Recipe Image (left side)
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
+                if (imageBitmap != null) {
+                    Image(
+                        bitmap = imageBitmap.asImageBitmap(),
+                        contentDescription = "Recipe image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.SetMeal,
+                        contentDescription = "No image",
+                        modifier = Modifier
+                            .size(32.dp)
+                            .align(Alignment.Center),
+                        tint = Neutral10
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Recipe Details (right side)
+            Column(modifier = Modifier.weight(1f)) {
+                // Title
                 Text(
                     text = recipe.title,
                     style = MaterialTheme.typography.titleLarge,
                     color = DeepRed,
-                    modifier = Modifier.weight(1f)
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
-                IconButton(
-                    onClick = {
-                        navController.navigate("${Routes.RECIPES_UPDATE}/${recipe.id}")
-                    }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Metadata Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp), // Fixed spacing
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Outlined.Edit, contentDescription = "Edit Recipe")
+                    RecipeMetadataItem(
+                        icon = Icons.Outlined.Timer,
+                        contentDescription = "Preparation time",
+                        text = "${recipe.preparationTime} min",
+                        modifier = Modifier.weight(1f) // Added equal weight
+                    )
+
+                    RecipeMetadataItem(
+                        icon = Icons.Outlined.SetMeal,
+                        contentDescription = "Servings",
+                        text = "${recipe.servings} servings",
+                        modifier = Modifier.weight(1f) // Added equal weight
+                    )
+
+                    RecipeMetadataItem(
+                        icon = Icons.Outlined.CalendarToday,
+                        contentDescription = "Created date",
+                        text = remember(recipe.createdAt) {
+                            SimpleDateFormat("MMM dd", Locale.getDefault())
+                                .format(recipe.createdAt)
+                        },
+                        modifier = Modifier.weight(1f) // Added equal weight
+                    )
                 }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Metadata Row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RecipeMetadataItem(
-                    icon = Icons.Outlined.Timer,
-                    contentDescription = "Preparation time",
-                    text = "${recipe.preparationTime} min"
-                )
-
-                RecipeMetadataItem(
-                    icon = Icons.Outlined.SetMeal,
-                    contentDescription = "Servings",
-                    text = "${recipe.servings} servings"
-                )
-
-                RecipeMetadataItem(
-                    icon = Icons.Outlined.CalendarToday,
-                    contentDescription = "Created date",
-                    text = remember(recipe.createdAt) {
-                        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(recipe.createdAt)
-                    }
-                )
             }
         }
     }
@@ -363,11 +401,12 @@ fun RecipeOverviewRow(recipe: Recipe, navController: NavController) {
 private fun RecipeMetadataItem(
     icon: ImageVector,
     contentDescription: String,
-    text: String
+    text: String,
+    modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.widthIn(min = 80.dp)
+        modifier = modifier
     ) {
         Icon(
             imageVector = icon,

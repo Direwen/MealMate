@@ -55,15 +55,17 @@ class RecipeListViewModel(
         onSuccess: () -> Unit,
         onError: (Exception) -> Unit
     ) {
+
+        // First remove locally for instant feedback
+        removeRecipeLocally(recipeId)
+
         viewModelScope.launch {
             try {
                 val success = recipeRepository.deleteRecipe(recipeId, groceryListItemRepository)
-                if (success) {
-                    // Remove from local state
-                    _recipes.value = _recipes.value.filter { it.id != recipeId }
-                    onSuccess()
-                } else {
+                if (!success) {
                     onError(Exception("Failed to delete recipe"))
+                } else {
+                    onSuccess()
                 }
             } catch (e: Exception) {
                 onError(e)

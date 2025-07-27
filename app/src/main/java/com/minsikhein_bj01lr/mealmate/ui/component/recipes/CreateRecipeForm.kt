@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateTextField
+import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral100
 import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
@@ -43,7 +44,7 @@ fun CreateRecipeForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .background(CreamyYellow)
                 .clickable { onImageSelect() }
         ) {
             if (uiState.imageUri != null) {
@@ -68,6 +69,8 @@ fun CreateRecipeForm(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Title Field
         MealMateTextField(
