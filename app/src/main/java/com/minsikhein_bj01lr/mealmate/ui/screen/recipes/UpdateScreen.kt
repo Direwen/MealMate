@@ -114,7 +114,7 @@ fun RecipesUpdateScreen(
                         },
                         onSubmit = {
                             viewModel.submitUpdate(
-                                onSuccess = { navController.popBackStack() },
+                                onSuccess = { navController.navigate(Routes.RECIPES_LIST) },
                                 onError = { e -> println("Update Error: ${e.message}") }
                             )
                         },
