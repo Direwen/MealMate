@@ -28,6 +28,9 @@ class AuthViewModel : ViewModel() {
     // External read-only state
     val authState: StateFlow<AuthState> = _authState
     val currentUser: FirebaseUser? get() = auth.currentUser
+    val lastLoginTimestamp: Long? get() = currentUser?.metadata?.lastSignInTimestamp
+    val creationTimestamp: Long? get() = currentUser?.metadata?.creationTimestamp
+
 
     init {
         checkCurrentUser()
@@ -135,6 +138,3 @@ class AuthViewModel : ViewModel() {
         _authState.value = AuthState.Unauthenticated
     }
 }
-
-//"nX9NJlX0xBa8xH0x5jxV4fVo1yq2"
-//"nX9NJlX0xBa8xH0x5jxV4fVo1yq2"

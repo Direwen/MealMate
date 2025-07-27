@@ -10,9 +10,9 @@ import androidx.compose.ui.unit.dp
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 
 @Composable
-fun MealMateIntro() {
+fun MealMateIntro(modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
