@@ -35,11 +35,7 @@ fun HomeScreen(
         navController = navController
     ) { innerPadding ->
 
-        // Observe category list from viewmodel
-//        val categoryViewModel: CategoryViewModel = viewModel()
-//        val categories by categoryViewModel.categories.collectAsState()
-
-        // Home Screen Height is fixed in most cases
+        // Home Screen Height is fixed
         // So Lazy Column is not required to use
         Column(
             modifier = Modifier
@@ -69,12 +65,6 @@ fun HomeScreen(
                     text = "Welcome, $email",
                     style = MaterialTheme.typography.headlineMedium
                 )
-
-                // Testing
-//                Text("Categories:", style = MaterialTheme.typography.titleMedium)
-//                categories.forEach { category ->
-//                    Text("• ${category.name}", style = MaterialTheme.typography.bodyLarge)
-//                }
 
 
                 //Logout Button
