@@ -10,9 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateIntro
@@ -20,6 +22,8 @@ import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.ui.theme.*
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthState
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
+import com.minsikhein_bj01lr.mealmate.viewmodel.HomeViewModel
+import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -39,18 +43,26 @@ fun HomeScreen(
                 .background(SoftCreamyYellow)
                 .verticalScroll(rememberScrollState())
         ) {
+
             val authState by authViewModel.authState.collectAsState()
+            val currentUserId = authViewModel.currentUser?.uid ?: ""
             val email = when (authState) {
                 is AuthState.Authenticated -> (authState as AuthState.Authenticated).dbUser.name
                 else -> "Guest"
             }
-
-            // Inside HomeScreen Composable:
-
-// Capitalize username and increase size
             val displayName = when (authState) {
                 is AuthState.Authenticated -> (authState as AuthState.Authenticated).dbUser.name.uppercase()
                 else -> "GUEST"
+            }
+            val context = LocalContext.current
+            val viewModel: HomeViewModel = viewModel {
+                HomeViewModel { context }
+            }
+            val uiState by viewModel.uiState.collectAsState()
+            val isLoading by viewModel.isLoading.collectAsState()
+
+            LaunchedEffect(currentUserId) {
+                viewModel.loadHomeScreenState(currentUserId = currentUserId)
             }
 
 // Header with capitalized & bigger username
@@ -82,7 +94,7 @@ fun HomeScreen(
                 )
             }
 
-// Stats Cards in one row with two columns
+            // Stats Cards in one row with two columns
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,17 +103,19 @@ fun HomeScreen(
             ) {
                 StatCard(
                     title = "Saved Recipes",
-                    count = 0,
+                    count = uiState.total_recipes,
                     backgroundColor = CreamyYellow,
                     textColor = DeepRed,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    isLoading = isLoading
                 )
                 StatCard(
                     title = "Grocery Items",
-                    count = 0,
+                    count = uiState.total_grocery_items,
                     backgroundColor = SoftOrange,
                     textColor = Neutral10,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    isLoading = isLoading
                 )
             }
 
@@ -167,6 +181,7 @@ private fun StatCard(
     count: Int,
     backgroundColor: Color,
     textColor: Color,
+    isLoading: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -180,13 +195,25 @@ private fun StatCard(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = "$count",
-            style = MaterialTheme.typography.displaySmall.copy(
-                fontWeight = FontWeight.Bold,
-                color = textColor
+
+        if (isLoading) {
+            // Show loading indicator
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = DeepRed)
+            }
+        } else {
+            Text(
+                text = "$count",
+                style = MaterialTheme.typography.displaySmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
             )
-        )
+        }
+
         Text(
             text = title,
             style = MaterialTheme.typography.bodyMedium.copy(
