@@ -108,28 +108,43 @@ class RecipeUpdateViewModel(
 
         _uiState.value = current.copy(isLoading = true, error = "")
 
-        // 🔍 Optional: validation (same as in create)
-        if (current.title.isBlank() || current.instructions.isBlank()) {
-            _uiState.value = current.copy(
-                isLoading = false,
-                error = "Please fill in all required fields."
-            )
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                recipeRepository.updateRecipeWithIngredients(current, groceryListItemRepository)
-                onSuccess()
-            } catch (e: Exception) {
+        when {
+            current.title.isBlank() || current.instructions.isBlank() -> {
                 _uiState.value = current.copy(
                     isLoading = false,
-                    error = "Update failed: ${e.message}"
+                    error = "Please fill in all required fields."
                 )
-                onError(e)
-            } finally {
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                return
+            }
+
+            current.ingredients.isEmpty() -> {
+                _uiState.value = current.copy(
+                    isLoading = false,
+                    error = "At least one ingredient is required."
+                )
+                return
+            }
+
+            else -> {
+
+                viewModelScope.launch {
+                    try {
+                        recipeRepository.updateRecipeWithIngredients(current, groceryListItemRepository)
+                        onSuccess()
+                    } catch (e: Exception) {
+                        _uiState.value = current.copy(
+                            isLoading = false,
+                            error = "Update failed: ${e.message}"
+                        )
+                        onError(e)
+                    } finally {
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                    }
+                }
+
             }
         }
+
+
     }
 }

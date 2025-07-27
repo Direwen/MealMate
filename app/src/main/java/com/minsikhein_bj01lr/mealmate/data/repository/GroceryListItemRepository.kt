@@ -202,4 +202,21 @@ class GroceryListItemRepository(
             Log.e(TAG, "Failed to delete grocery item", e)
         }
     }
+
+    suspend fun deleteGroceryItemAndSources(itemId: String) {
+        try {
+            // Delete all sources first
+            val sources = groceryListItemSourceRepository.getSourcesByGroceryItemId(itemId)
+            if (sources.isNotEmpty()) {
+                groceryListItemSourceRepository.deleteSources(sources.map { it.id })
+            }
+
+            // Then delete the grocery item
+            groceryListItemCollection.document(itemId).delete().await()
+            Log.d(TAG, "Deleted grocery item $itemId and ${sources.size} sources")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to delete grocery item or sources", e)
+            throw e
+        }
+    }
 }

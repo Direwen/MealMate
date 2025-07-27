@@ -70,6 +70,19 @@ class RecipesCreateViewModel(
 
         // 🔍 Validation Step
         when {
+
+            currentState.imageUri == null -> {
+                setError("Image is required")
+                setLoading(false)
+                return
+            }
+
+            currentState.imageUri.toString().isBlank() -> {
+                setError("Image is required")
+                setLoading(false)
+                return
+            }
+
             currentState.title.isBlank() -> {
                 setError("Title cannot be empty")
                 setLoading(false)

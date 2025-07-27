@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.LocalGroceryStore
 import androidx.compose.material3.*
 import androidx.compose.material3.ButtonDefaults
@@ -249,15 +250,14 @@ fun GroceriesListScreen(
 
                             items(state.items) { item ->
                                 var expanded by remember { mutableStateOf(false) }
-
                                 val isPurchased = item.isPurchased
 
                                 // Card background color
                                 val backgroundColor = when {
                                     isPurchased && expanded -> WarmBrown.copy(alpha = 0.15f)
-                                    isPurchased && !expanded -> Color.Transparent
+                                    isPurchased && !expanded -> SoftCreamyYellow
                                     !isPurchased && expanded -> WarmBrown
-                                    else -> Color.Transparent
+                                    else -> SoftCreamyYellow
                                 }
 
                                 // Primary text color (ingredient name)
@@ -275,85 +275,127 @@ fun GroceriesListScreen(
                                     else -> WarmBrown
                                 }
 
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(backgroundColor)
-                                        .padding(12.dp)
-                                ) {
-                                    Column {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Column(
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .clickable { viewModel.togglePurchasedStatus(item.id) }
-                                            ) {
-                                                Text(
-                                                    text = item.name.uppercase(),
-                                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                                        fontWeight = FontWeight.Bold,
-                                                        textDecoration = if (isPurchased) TextDecoration.LineThrough else TextDecoration.None
-                                                    ),
-                                                    color = primaryTextColor
-                                                )
-                                                Spacer(modifier = Modifier.height(4.dp))
-                                            }
+                                // --- Swipe to Dismiss Wrapper ---
+                                val swipeState = rememberSwipeToDismissBoxState(
+                                    confirmValueChange = { value ->
+                                        if (value == SwipeToDismissBoxValue.EndToStart) {
+                                            viewModel.deleteGroceryItem(item.id)
+                                            true
+                                        } else {
+                                            false
+                                        }
+                                    }
+                                )
 
-                                            // Collapse Button (Always visible, tinted if purchased)
-                                            IconButton(
-                                                onClick = { expanded = !expanded },
-                                                modifier = Modifier
-                                                    .clip(CircleShape)
-                                                    .padding(6.dp)
-                                                    .size(32.dp)
+                                SwipeToDismissBox(
+                                    state = swipeState,
+                                    backgroundContent = {
+                                        val dismissColor = Color(0xFFD32F2F) // Material Red 700 for delete
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(dismissColor)
+                                                .padding(bottom = 10.dp),
+                                            contentAlignment = Alignment.CenterEnd
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(end = 24.dp),
+                                                verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Icon(
-                                                    imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                                    contentDescription = if (expanded) "Collapse" else "Expand",
-                                                    tint = primaryTextColor
+                                                    imageVector = Icons.Outlined.Delete,
+                                                    contentDescription = null,
+                                                    tint = CreamyYellow,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    text = "Delete",
+                                                    color = CreamyYellow,
+                                                    style = MaterialTheme.typography.bodyMedium
                                                 )
                                             }
                                         }
-
-                                        // Expanded details
-                                        AnimatedVisibility(visible = expanded) {
-                                            Column(modifier = Modifier.padding(top = 8.dp, start = 4.dp)) {
-                                                if (item.recipeSources.isNotEmpty()) {
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(12.dp)) // Match the inner card
+                                ) {
+                                    // This is your original item content (the card)
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(backgroundColor)
+                                            .padding(12.dp)
+                                    ) {
+                                        Column {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Column(
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .clickable { viewModel.togglePurchasedStatus(item.id) }
+                                                ) {
                                                     Text(
-                                                        text = "From recipes:",
-                                                        style = MaterialTheme.typography.labelSmall.copy(
-                                                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 1.2f
+                                                        text = item.name.uppercase(),
+                                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                                            fontWeight = FontWeight.Bold,
+                                                            textDecoration = if (isPurchased) TextDecoration.LineThrough else TextDecoration.None
                                                         ),
-                                                        color = secondaryTextColor
+                                                        color = primaryTextColor
                                                     )
-                                                    item.recipeSources.forEach { source ->
+                                                    Spacer(modifier = Modifier.height(4.dp))
+                                                }
+                                                // Collapse Button
+                                                IconButton(
+                                                    onClick = { expanded = !expanded },
+                                                    modifier = Modifier
+                                                        .clip(CircleShape)
+                                                        .padding(6.dp)
+                                                        .size(32.dp)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                                        contentDescription = if (expanded) "Collapse" else "Expand",
+                                                        tint = primaryTextColor
+                                                    )
+                                                }
+                                            }
+                                            // Expanded details
+                                            AnimatedVisibility(visible = expanded) {
+                                                Column(modifier = Modifier.padding(top = 8.dp, start = 4.dp)) {
+                                                    if (item.recipeSources.isNotEmpty()) {
                                                         Text(
-                                                            "- ${source.amount} for ${source.recipeName}",
-                                                            style = MaterialTheme.typography.bodySmall.copy(
-                                                                fontSize = MaterialTheme.typography.bodySmall.fontSize * 1.2f
+                                                            text = "From recipes:",
+                                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                                fontSize = MaterialTheme.typography.labelSmall.fontSize * 1.2f
                                                             ),
                                                             color = secondaryTextColor
                                                         )
+                                                        item.recipeSources.forEach { source ->
+                                                            Text(
+                                                                "- ${source.amount} for ${source.recipeName}",
+                                                                style = MaterialTheme.typography.bodySmall.copy(
+                                                                    fontSize = MaterialTheme.typography.bodySmall.fontSize * 1.2f
+                                                                ),
+                                                                color = secondaryTextColor
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
+                                            Divider(
+                                                modifier = Modifier.padding(horizontal = 16.dp),
+                                                thickness = 1.dp,
+                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                                            )
                                         }
-
-                                        Divider(
-                                            modifier = Modifier.padding(horizontal = 16.dp),
-                                            thickness = 1.dp,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                                        )
                                     }
                                 }
                             }
-
-
-
 
                         }
                     }

@@ -102,6 +102,41 @@ class GroceryListViewModel(
         }
     }
 
+    fun deleteGroceryItem(itemId: String) {
+        Log.d(TAG, "Deleting grocery item with id=$itemId (optimistically)")
+
+        // 1. Save current state for rollback
+        val previousState = _viewState.value
+        val itemToDelete = previousState.items.find { it.id == itemId }
+        if (itemToDelete == null) {
+            Log.w(TAG, "Item with id=$itemId not found for deletion")
+            return
+        }
+
+        // 2. Optimistically remove item from UI
+        _viewState.update { currentState ->
+            val updatedItems = currentState.items.filter { it.id != itemId }
+            currentState.copy(
+                items = updatedItems,
+                totalItems = updatedItems.size,
+                purchasedCount = updatedItems.count { it.isPurchased }
+            )
+        }
+
+        // 3. Perform deletion in background
+        viewModelScope.launch {
+            try {
+                groceryListItemRepository.deleteGroceryItemAndSources(itemId)
+                Log.d(TAG, "Successfully deleted grocery item and sources: $itemId")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to delete grocery item (rollback): ${e.message}", e)
+
+                // 4. On error: rollback UI
+                _viewState.value = previousState
+            }
+        }
+    }
+
     fun togglePurchasedStatus(itemId: String) {
         Log.d(TAG, "Toggling purchase status for itemId=$itemId")
 
