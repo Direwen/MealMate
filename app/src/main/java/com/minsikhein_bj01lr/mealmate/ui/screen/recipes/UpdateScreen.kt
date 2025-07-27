@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -20,6 +21,7 @@ import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeUpdateViewModel
+import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.UpdateRecipeUiState
 
 @Composable
@@ -27,8 +29,11 @@ fun RecipesUpdateScreen(
     recipeId: String,
     navController: NavController,
     authViewModel: AuthViewModel,
-    viewModel: RecipeUpdateViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val viewModel: RecipeUpdateViewModel = viewModel {
+        RecipeUpdateViewModel { context }
+    }
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(recipeId) {

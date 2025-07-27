@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,14 +43,18 @@ import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.ImportState
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeDetailUiState
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeDetailViewModel
+import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
 
 @Composable
 fun RecipesDetailScreen(
     recipeId: String,
     navController: NavHostController,
     authViewModel: AuthViewModel,
-    viewModel: RecipeDetailViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val viewModel: RecipeDetailViewModel = viewModel {
+        RecipeDetailViewModel { context }
+    }
     val uiState by viewModel.uiState.collectAsState()
     val importState by viewModel.importState.collectAsState()
     val currentUserId = authViewModel.currentUser?.uid ?: return

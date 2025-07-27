@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
 import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeListViewModel
+import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -43,8 +45,11 @@ import java.util.*
 fun RecipesListScreen(
     navController: NavController,
     authViewModel: AuthViewModel,
-    viewModel: RecipeListViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val viewModel: RecipeListViewModel = viewModel {
+        RecipeListViewModel { context }
+    }
     val currentUserId = authViewModel.currentUser?.uid ?: return
     val recipes by viewModel.recipes.collectAsState()
 

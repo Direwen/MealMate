@@ -1,10 +1,12 @@
 package com.minsikhein_bj01lr.mealmate.data.repository
 
+import android.content.Context
 import android.util.Log
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.minsikhein_bj01lr.mealmate.data.model.Recipe
 import com.minsikhein_bj01lr.mealmate.data.model.RecipeIngredient
+import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.CreateRecipeUiState
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.UpdateRecipeUiState
 import kotlinx.coroutines.tasks.await
@@ -14,14 +16,21 @@ class RecipeRepository(
     private val ingredientRepository: IngredientRepository,
     private val recipeIngredientRepository: RecipeIngredientRepository,
     private val groceryListItemSourceRepository: GroceryListItemSourceRepository,
+    private val imageStorageHelper: ImageStorageHelper
 ) {
 
     private val firestore = FirebaseFirestore.getInstance()
     private val recipeCollection = firestore.collection("recipes")
     private val TAG = "RecipeRepository"
+//    private val imageStorageHelper = ImageStorageHelper(context = Context)
 
     suspend fun createRecipeWithIngredients(uiState: CreateRecipeUiState, creatorId: String) {
         val recipeId = UUID.randomUUID().toString()
+
+        // Handle image saving
+        val imagePath = uiState.imageUri?.let { uri ->
+            imageStorageHelper.saveImage(uri)
+        } ?: ""
 
         val recipe = Recipe(
             id = recipeId,
@@ -30,6 +39,7 @@ class RecipeRepository(
             instructions = uiState.instructions,
             preparationTime = uiState.preparationTime,
             servings = uiState.servings,
+            imagePath = imagePath
         )
 
         try {
@@ -58,7 +68,9 @@ class RecipeRepository(
 
         } catch (e: Exception) {
             Log.e(TAG, "Failed to create recipe with ingredients", e)
-            // You can emit some error state or return a result if needed
+            if (imagePath.isNotEmpty()) {
+                imageStorageHelper.deleteImage(imagePath)
+            }
         }
     }
 
@@ -110,13 +122,31 @@ class RecipeRepository(
         val recipeId = uiState.id
 
         try {
+
+            // Get current recipe to check for existing image
+            val currentRecipe = recipeCollection.document(uiState.id).get().await()
+                .toObject(Recipe::class.java)
+
+            var imagePath = currentRecipe?.imagePath ?: ""
+
+            // Handle new image if provided
+            uiState.imageUri?.let { uri ->
+                // Delete old image if exists
+                if (imagePath.isNotEmpty()) {
+                    imageStorageHelper.deleteImage(imagePath)
+                }
+                // Save new image
+                imagePath = imageStorageHelper.saveImage(uri) ?: ""
+            }
+
             // 1. Update recipe metadata - FIXED UPDATE SYNTAX
             val updates = mapOf(
                 "title" to uiState.title,
                 "instructions" to uiState.instructions,
                 "preparationTime" to uiState.preparationTime,
                 "servings" to uiState.servings,
-                "updatedAt" to Date()
+                "updatedAt" to Date(),
+                "imagePath" to imagePath
             )
             recipeCollection.document(recipeId).update(updates).await()
 
@@ -191,6 +221,10 @@ class RecipeRepository(
         groceryListItemRepository: GroceryListItemRepository
     ): Boolean {
         return try {
+            // Get recipe first to get image path
+            val recipe = recipeCollection.document(recipeId).get().await()
+                .toObject(Recipe::class.java)
+
             // 1. Get all recipe ingredients first
             val recipeIngredients = recipeIngredientRepository.getRecipeIngredients(recipeId) ?: emptyList()
 
@@ -216,6 +250,11 @@ class RecipeRepository(
 
             // 4. Finally delete the recipe itself
             recipeCollection.document(recipeId).delete().await()
+
+            // Delete image after successful deletion
+            recipe?.imagePath?.takeIf { it.isNotEmpty() }?.let {
+                imageStorageHelper.deleteImage(it)
+            }
 
             true
         } catch (e: Exception) {

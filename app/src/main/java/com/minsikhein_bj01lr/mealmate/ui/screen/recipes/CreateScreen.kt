@@ -1,5 +1,8 @@
 package com.minsikhein_bj01lr.mealmate.ui.screen.recipes
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -29,14 +32,18 @@ import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.platform.LocalContext
 
 
 @Composable
 fun RecipesCreateScreen(
     navController: NavController,
     authViewModel: AuthViewModel,
-    viewModel: RecipesCreateViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val viewModel: RecipesCreateViewModel = viewModel {
+        RecipesCreateViewModel { context }
+    }
     val uiState by viewModel.createRecipeUiState.collectAsState()
 
     AuthenticatedScreen(
@@ -76,6 +83,13 @@ fun RecipesCreateScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                 ) {
+
+                    val launcher = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.GetContent()
+                    ) { uri: Uri? ->
+                        uri?.let { viewModel.setImageUri(it) }
+                    }
+
                     CreateRecipeForm(
                         uiState = uiState,
                         onUiStateChange = { viewModel.onUiStateChange(it) },
@@ -83,9 +97,10 @@ fun RecipesCreateScreen(
                             viewModel.submitRecipe(
                                 currentUserId = authViewModel.currentUser?.uid ?: "",
                                 onSuccess = { navController.popBackStack() },
-                                onError = { e -> println("Error: ${e.message}") }
+                                onError = { e -> println("Error: ${e.message}") },
                             )
-                        }
+                        },
+                        onImageSelect = { launcher.launch("image/*") }
                     )
                 }
             }
