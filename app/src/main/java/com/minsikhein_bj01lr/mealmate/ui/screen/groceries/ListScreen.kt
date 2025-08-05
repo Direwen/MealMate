@@ -254,7 +254,7 @@ fun GroceriesListScreen(
 
                                 // Card background color
                                 val backgroundColor = when {
-                                    isPurchased && expanded -> WarmBrown.copy(alpha = 0.15f)
+                                    isPurchased && expanded -> SoftCreamyYellow
                                     isPurchased && !expanded -> SoftCreamyYellow
                                     !isPurchased && expanded -> WarmBrown
                                     else -> SoftCreamyYellow

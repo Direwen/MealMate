@@ -17,6 +17,7 @@ import com.minsikhein_bj01lr.mealmate.data.repository.RecipeRepository
 import com.minsikhein_bj01lr.mealmate.ui.screen.HomeScreen
 import com.minsikhein_bj01lr.mealmate.ui.screen.LoginScreen
 import com.minsikhein_bj01lr.mealmate.ui.screen.RegisterScreen
+import com.minsikhein_bj01lr.mealmate.ui.screen.SplashScreen
 import com.minsikhein_bj01lr.mealmate.ui.screen.groceries.GroceriesListScreen
 import com.minsikhein_bj01lr.mealmate.ui.screen.recipes.RecipesCreateScreen
 import com.minsikhein_bj01lr.mealmate.ui.screen.recipes.RecipesDetailScreen
@@ -42,8 +43,15 @@ fun MealMateNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Routes.SPLASH
     ) {
+
+        composable(Routes.SPLASH) {
+            SplashScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            )
+        }
         composable(Routes.LOGIN) {
             LoginScreen(
                 navController = navController,

@@ -1,6 +1,7 @@
 package com.minsikhein_bj01lr.mealmate.ui.navigation
 
 object Routes {
+    const val SPLASH = "screen_splash"
     const val LOGIN = "screen_login"
     const val LOGOUT = "screen_logout"
     const val REGISTER = "screen_register"
