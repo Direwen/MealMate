@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,17 +19,19 @@ import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 
 @Composable
 fun MealMateIcon(size: Dp = 64.dp) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
-            .background(DeepRed),
+            .background(colorScheme.primary), // was DeepRed
         contentAlignment = Alignment.Center
     ) {
         Icon(
             painter = painterResource(id = R.drawable.chef_hat),
             contentDescription = null,
-            tint = CreamyYellow,
+            tint = colorScheme.background, // was CreamyYellow
             modifier = Modifier.size(size / 2)
         )
     }

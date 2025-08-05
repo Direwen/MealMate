@@ -34,7 +34,6 @@ import androidx.navigation.NavController
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
 import com.minsikhein_bj01lr.mealmate.ui.component.LoadingScreen
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
-import com.minsikhein_bj01lr.mealmate.ui.theme.*
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.groceries.GroceryListViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
@@ -64,7 +63,7 @@ fun GroceriesListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
-                .background(SoftCreamyYellow)
+                .background(MaterialTheme.colorScheme.background)
         ) {
 
             Row(
@@ -77,19 +76,19 @@ fun GroceriesListScreen(
                 Text(
                     text = "My Grocery List",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = DeepRed
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 IconButton(
                     onClick = { viewModel.shareGroceryList() },
                     modifier = Modifier
                         .size(40.dp)
-                        .background(DeepRed, shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Share,
                         contentDescription = "Share grocery list",
-                        tint = CreamyYellow
+                        tint = MaterialTheme.colorScheme.surface
                     )
                 }
             }
@@ -102,12 +101,11 @@ fun GroceriesListScreen(
                     if (state.totalItems > 0) {
                         val percent = (state.purchasedCount.toFloat() / state.totalItems).coerceIn(0f, 1f)
 
-
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
-                            colors = CardDefaults.cardColors(containerColor = DeepRed),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(16.dp),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
@@ -115,7 +113,7 @@ fun GroceriesListScreen(
                                 Text(
                                     text = "Your Grocery Progress",
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                                    color = CreamyYellow
+                                    color = MaterialTheme.colorScheme.surface
                                 )
 
                                 Spacer(modifier = Modifier.height(12.dp))
@@ -126,8 +124,8 @@ fun GroceriesListScreen(
                                         .fillMaxWidth()
                                         .height(8.dp)
                                         .clip(RoundedCornerShape(4.dp)),
-                                    color = SoftOrange, // or WarmBrown
-                                    trackColor = CreamyYellow.copy(alpha = 0.2f)
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    trackColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.2f)
                                 )
 
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -140,14 +138,14 @@ fun GroceriesListScreen(
                                         Icon(
                                             imageVector = Icons.Default.Info,
                                             contentDescription = "Total items",
-                                            tint = CreamyYellow,
+                                            tint = MaterialTheme.colorScheme.surface,
                                             modifier = Modifier.size(18.dp)
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
                                             "Total: ${state.totalItems}",
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = CreamyYellow
+                                            color = MaterialTheme.colorScheme.surface
                                         )
                                     }
 
@@ -155,26 +153,25 @@ fun GroceriesListScreen(
                                         Icon(
                                             imageVector = Icons.Default.CheckCircle,
                                             contentDescription = "Purchased items",
-                                            tint = CreamyYellow,
+                                            tint = MaterialTheme.colorScheme.surface,
                                             modifier = Modifier.size(18.dp)
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
                                             "Purchased: ${state.purchasedCount}",
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = CreamyYellow
+                                            color = MaterialTheme.colorScheme.surface
                                         )
                                     }
 
                                     Text(
                                         "${(percent * 100).toInt()}%",
                                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = if (percent == 1f) Color(0xFFEAFCA9) else CreamyYellow
+                                        color = MaterialTheme.colorScheme.surface
                                     )
                                 }
                             }
                         }
-
 
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -185,14 +182,14 @@ fun GroceriesListScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(error, color = DeepRed)
+                            Text(error, color = MaterialTheme.colorScheme.primary)
                             Spacer(modifier = Modifier.height(8.dp))
                             Button(
                                 onClick = {
                                     viewModel.clearError()
                                     viewModel.refresh(currentUserId)
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = SoftOrange)
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                             ) {
                                 Text("Retry")
                             }
@@ -215,19 +212,19 @@ fun GroceriesListScreen(
                                 modifier = Modifier
                                     .size(60.dp)
                                     .padding(bottom = 12.dp),
-                                tint = DeepRed
+                                tint = MaterialTheme.colorScheme.primary
                             )
                             Text(
                                 "No groceries yet!",
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.SemiBold,
-                                color = WarmBrown
+                                color = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 "Add items manually or explore your saved recipes to fill your list.",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = WarmBrown.copy(alpha = 0.8f),
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                                 modifier = Modifier.padding(horizontal = 32.dp),
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
@@ -235,8 +232,8 @@ fun GroceriesListScreen(
                             Button(
                                 onClick = { navController.navigate(Routes.RECIPES_LIST) },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = DeepRed,
-                                    contentColor = CreamyYellow
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.surface
                                 )
                             ) {
                                 Text("Browse Saved Recipes")
@@ -254,25 +251,25 @@ fun GroceriesListScreen(
 
                                 // Card background color
                                 val backgroundColor = when {
-                                    isPurchased && expanded -> SoftCreamyYellow
-                                    isPurchased && !expanded -> SoftCreamyYellow
-                                    !isPurchased && expanded -> WarmBrown
-                                    else -> SoftCreamyYellow
+                                    isPurchased && expanded -> MaterialTheme.colorScheme.background
+                                    isPurchased && !expanded -> MaterialTheme.colorScheme.background
+                                    !isPurchased && expanded -> MaterialTheme.colorScheme.primary
+                                    else -> MaterialTheme.colorScheme.background
                                 }
 
                                 // Primary text color (ingredient name)
                                 val primaryTextColor = when {
-                                    isPurchased && expanded -> WarmBrown.copy(alpha = 0.8f)
-                                    isPurchased && !expanded -> WarmBrown.copy(alpha = 0.5f)
-                                    !isPurchased && expanded -> SoftCreamyYellow
-                                    else -> DeepRed
+                                    isPurchased && expanded -> MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                                    isPurchased && !expanded -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                                    !isPurchased && expanded -> MaterialTheme.colorScheme.background
+                                    else -> MaterialTheme.colorScheme.primary
                                 }
 
                                 // Secondary text color (detail text)
                                 val secondaryTextColor = when {
                                     isPurchased -> primaryTextColor.copy(alpha = 0.7f)
-                                    expanded -> SoftCreamyYellow
-                                    else -> WarmBrown
+                                    expanded -> MaterialTheme.colorScheme.background
+                                    else -> MaterialTheme.colorScheme.primary
                                 }
 
                                 // --- Swipe to Dismiss Wrapper ---
@@ -305,13 +302,13 @@ fun GroceriesListScreen(
                                                 Icon(
                                                     imageVector = Icons.Outlined.Delete,
                                                     contentDescription = null,
-                                                    tint = CreamyYellow,
+                                                    tint = MaterialTheme.colorScheme.surface,
                                                     modifier = Modifier.size(20.dp)
                                                 )
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Text(
                                                     text = "Delete",
-                                                    color = CreamyYellow,
+                                                    color = MaterialTheme.colorScheme.surface,
                                                     style = MaterialTheme.typography.bodyMedium
                                                 )
                                             }
@@ -396,7 +393,6 @@ fun GroceriesListScreen(
                                     }
                                 }
                             }
-
                         }
                     }
                 }

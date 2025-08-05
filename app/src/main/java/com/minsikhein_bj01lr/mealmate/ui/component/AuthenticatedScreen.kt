@@ -30,12 +30,9 @@ import androidx.compose.material.icons.filled.FoodBank
 import androidx.compose.material.icons.filled.LocalGroceryStore
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.ui.graphics.Color
-import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
-import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral90
-import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
 
 @Composable
 fun AuthenticatedScreen(
@@ -55,12 +52,12 @@ fun AuthenticatedScreen(
             )
 
             Scaffold(
-                modifier = Modifier.fillMaxSize().background(SoftCreamyYellow),
-                containerColor = SoftCreamyYellow,
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+                containerColor = MaterialTheme.colorScheme.background,
                 bottomBar = {
                     NavigationBar(
                         modifier = Modifier,
-                        containerColor = DeepRed,
+                        containerColor = MaterialTheme.colorScheme.primary,
                     ) {
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentRoute = navBackStackEntry?.destination?.route
@@ -84,25 +81,25 @@ fun AuthenticatedScreen(
                                 label = {
                                     Text(
                                         text = item.label,
-                                        color = SoftCreamyYellow
+                                        color = MaterialTheme.colorScheme.background
                                     )
                                 },
                                 icon = {
                                     Icon(
                                         imageVector = item.icon,
                                         contentDescription = item.label,
-                                        tint = if (item.route == "logout") SoftCreamyYellow
-                                        else if (currentRoute == item.route) DeepRed
-                                        else SoftCreamyYellow
+                                        tint = if (item.route == "logout") MaterialTheme.colorScheme.background
+                                        else if (currentRoute == item.route) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.background
                                     )
                                 },
                                 colors = NavigationBarItemDefaults.colors(
                                     indicatorColor = if (item.route == "logout") Color.Transparent
-                                    else SoftCreamyYellow,
-                                    selectedIconColor = SoftCreamyYellow,
-                                    unselectedIconColor = Neutral90,
-                                    selectedTextColor = SoftCreamyYellow,
-                                    unselectedTextColor = Neutral90
+                                    else MaterialTheme.colorScheme.background,
+                                    selectedIconColor = MaterialTheme.colorScheme.background,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onBackground,
+                                    selectedTextColor = MaterialTheme.colorScheme.background,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onBackground
                                 )
                             )
                         }
@@ -113,7 +110,7 @@ fun AuthenticatedScreen(
                     modifier = Modifier
                         .padding(innerPadding)
                         .fillMaxSize()
-                        .background(SoftCreamyYellow)
+                        .background(MaterialTheme.colorScheme.background)
                 ) {
                     content(innerPadding)
                 }

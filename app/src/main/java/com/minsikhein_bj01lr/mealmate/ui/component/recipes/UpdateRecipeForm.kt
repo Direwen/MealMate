@@ -22,20 +22,15 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateTextField
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
-import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral100
-import com.minsikhein_bj01lr.mealmate.ui.theme.SoftOrange
-import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.IngredientInput
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.UpdateRecipeUiState
-import java.io.File
 
 @Composable
 fun UpdateRecipeForm(
     uiState: UpdateRecipeUiState,
     onUiStateChange: (UpdateRecipeUiState) -> Unit,
     onSubmit: () -> Unit,
-    onImageSelect: () -> Unit  // Add this parameter
+    onImageSelect: () -> Unit
 ) {
     var newIngredientName by remember { mutableStateOf("") }
     var newIngredientAmount by remember { mutableStateOf("") }
@@ -45,13 +40,12 @@ fun UpdateRecipeForm(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-
         // Image Picker Section
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(WarmBrown.copy(alpha = 0.2f))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                 .clickable { onImageSelect() }
         ) {
             if (uiState.imageUri != null) {
@@ -73,7 +67,7 @@ fun UpdateRecipeForm(
                         imageVector = Icons.Default.AddPhotoAlternate,
                         contentDescription = "Add image",
                         modifier = Modifier.size(48.dp),
-                        tint = WarmBrown
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Text("Select New Image")
                 }
@@ -150,7 +144,7 @@ fun UpdateRecipeForm(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        colors = CardDefaults.cardColors(containerColor = WarmBrown)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Row(
                             modifier = Modifier
@@ -162,7 +156,7 @@ fun UpdateRecipeForm(
                                 text = "${ingredient.name} - ${ingredient.amount}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.weight(1f),
-                                color = Neutral100
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                             IconButton(
                                 onClick = {
@@ -175,7 +169,7 @@ fun UpdateRecipeForm(
                                 Icon(
                                     imageVector = Icons.Default.Delete,
                                     contentDescription = "Remove ingredient",
-                                    tint = Neutral100
+                                    tint = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
                         }
@@ -220,7 +214,7 @@ fun UpdateRecipeForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally),
-            colors = ButtonDefaults.buttonColors(WarmBrown)
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
         ) {
             Text("Add Ingredient")
         }
@@ -244,7 +238,7 @@ fun UpdateRecipeForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally),
-            colors = ButtonDefaults.buttonColors(DeepRed)
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
         ) {
             Text("Confirm")
         }

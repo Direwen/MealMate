@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,13 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.minsikhein_bj01lr.mealmate.ui.component.GuestScreen
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateIntro
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateTextField
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
-import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
-import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthState
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 
@@ -41,95 +38,96 @@ fun LoginScreen(
     navController: NavController,
     authViewModel: AuthViewModel
 ) {
-    GuestScreen(
-        authViewModel = authViewModel,
-        navController = navController
+    val authState by authViewModel.authState.collectAsState()
+
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.secondary)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val authState by authViewModel.authState.collectAsState()
+        // Intro Section
+        MealMateIntro()
 
-        var email by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // Inner Container
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .background(CreamyYellow)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Intro Section
-            MealMateIntro()
+            Text(
+                text = "Welcome Back",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            MealMateTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = "Email"
+            )
 
-            // Inner Container
-            Column(
+            MealMateTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = "Password",
+                isPassword = true
+            )
+
+            if (authState is AuthState.Error) {
+                val errorMessage = (authState as AuthState.Error).message
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            if (authState is AuthState.Loading) {
+                CircularProgressIndicator()
+            }
+
+            if (authState is AuthState.Authenticated) {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                }
+            }
+
+            Button(
+                onClick = { authViewModel.login(email, password) },
+                enabled = authState != AuthState.Loading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(SoftCreamyYellow) // Lighter than CreamyYellow
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .height(50.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Text("Login")
+            }
+
+            TextButton(
+                onClick = { navController.navigate(Routes.REGISTER) }
             ) {
                 Text(
-                    text = "Welcome Back",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = DeepRed
+                    text = "Don't have an account? Register",
+                    color = MaterialTheme.colorScheme.primary
                 )
-
-                MealMateTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = "Email"
-                )
-
-                MealMateTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = "Password",
-                    isPassword = true
-                )
-
-
-                if (authState is AuthState.Error) {
-                    val errorMessage = (authState as AuthState.Error).message
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-
-                if (authState is AuthState.Loading) {
-                    CircularProgressIndicator()
-                }
-
-                Button(
-                    onClick = { authViewModel.login(email, password) },
-                    enabled = authState != AuthState.Loading,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = DeepRed,
-                        contentColor = CreamyYellow // text color here
-                    )
-                ) {
-                    Text("Login")
-                }
-
-                TextButton(
-                    onClick = { navController.navigate(Routes.REGISTER) }
-                ) {
-                    Text(
-                        text = "Don't have an account? Register",
-                        color = DeepRed
-                    )
-                }
             }
         }
     }
 }
-

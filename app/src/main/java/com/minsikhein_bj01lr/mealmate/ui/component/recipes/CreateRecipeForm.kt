@@ -17,10 +17,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateTextField
-import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
-import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral100
-import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.CreateRecipeUiState
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.IngredientInput
 
@@ -44,7 +40,7 @@ fun CreateRecipeForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(CreamyYellow)
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable { onImageSelect() }
         ) {
             if (uiState.imageUri != null) {
@@ -140,7 +136,7 @@ fun CreateRecipeForm(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        colors = CardDefaults.cardColors(containerColor = WarmBrown)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Row(
                             modifier = Modifier
@@ -152,7 +148,7 @@ fun CreateRecipeForm(
                                 text = "${ingredient.name} - ${ingredient.amount}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.weight(1f),
-                                color = Neutral100
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                             IconButton(
                                 onClick = {
@@ -165,7 +161,7 @@ fun CreateRecipeForm(
                                 Icon(
                                     imageVector = Icons.Default.Delete,
                                     contentDescription = "Remove ingredient",
-                                    tint = Neutral100
+                                    tint = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
                         }
@@ -210,7 +206,7 @@ fun CreateRecipeForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally),
-            colors = ButtonDefaults.buttonColors(WarmBrown)
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
         ) {
             Text("Add Ingredient")
         }
@@ -234,7 +230,7 @@ fun CreateRecipeForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally),
-            colors = ButtonDefaults.buttonColors(DeepRed)
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
         ) {
             Text("Confirm")
         }

@@ -40,7 +40,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SoftCreamyYellow)
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
         ) {
 
@@ -65,7 +65,7 @@ fun HomeScreen(
                 viewModel.loadHomeScreenState(currentUserId = currentUserId)
             }
 
-// Header with capitalized & bigger username
+            // Header with capitalized & bigger username
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -79,15 +79,15 @@ fun HomeScreen(
                 Text(
                     text = "Welcome back,",
                     style = MaterialTheme.typography.titleLarge.copy(
-                        color = WarmBrown,
+                        color = MaterialTheme.colorScheme.primary, // Replaced WarmBrown
                         fontWeight = FontWeight.Normal
                     )
                 )
 
                 Text(
                     text = displayName,
-                    style = MaterialTheme.typography.headlineMedium.copy(  // bigger than headlineSmall
-                        color = DeepRed,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        color = MaterialTheme.colorScheme.primary, // Replaced DeepRed
                         fontWeight = FontWeight.Bold
                     ),
                     modifier = Modifier.padding(top = 4.dp)
@@ -101,28 +101,33 @@ fun HomeScreen(
                     .padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // First Card: Add border
                 StatCard(
                     title = "Saved Recipes",
                     count = uiState.total_recipes,
-                    backgroundColor = CreamyYellow,
-                    textColor = DeepRed,
+                    backgroundColor = MaterialTheme.colorScheme.surface,
+                    textColor = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f),
-                    isLoading = isLoading
+                    isLoading = isLoading,
+                    borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) // NEW
                 )
+
+                // Second Card: Fix loading indicator contrast
                 StatCard(
                     title = "Grocery Items",
                     count = uiState.total_grocery_items,
-                    backgroundColor = SoftOrange,
-                    textColor = Neutral10,
+                    backgroundColor = MaterialTheme.colorScheme.primary,
+                    textColor = MaterialTheme.colorScheme.onPrimary, // this is used for text & spinner
                     modifier = Modifier.weight(1f),
                     isLoading = isLoading
                 )
+
             }
 
             // Divider with padding after stats cards
             Spacer(modifier = Modifier.height(16.dp))
             Divider(
-                color = WarmBrown.copy(alpha = 0.3f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), // Replaced WarmBrown
                 thickness = 1.dp,
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
@@ -140,12 +145,12 @@ fun HomeScreen(
                 Box(
                     modifier = Modifier
                         .background(
-                            color = CreamyYellow,
+                            color = MaterialTheme.colorScheme.surface, // Replaced CreamyYellow
                             shape = MaterialTheme.shapes.medium
                         )
                         .border(
                             width = 1.dp,
-                            color = WarmBrown.copy(alpha = 0.2f),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), // Replaced WarmBrown
                             shape = MaterialTheme.shapes.medium
                         )
                 ) {
@@ -170,7 +175,6 @@ fun HomeScreen(
                     modifier = Modifier.weight(0.6f)
                 )
             }
-
         }
     }
 }
@@ -182,11 +186,18 @@ private fun StatCard(
     backgroundColor: Color,
     textColor: Color,
     isLoading: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    borderColor: Color? = null
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .then(
+                if (borderColor != null) {
+                    Modifier
+                        .border(1.dp, borderColor, shape = MaterialTheme.shapes.large)
+                } else Modifier
+            )
             .background(
                 color = backgroundColor,
                 shape = MaterialTheme.shapes.large
@@ -195,14 +206,12 @@ private fun StatCard(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-
         if (isLoading) {
-            // Show loading indicator
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = DeepRed)
+                CircularProgressIndicator(color = textColor)
             }
         } else {
             Text(
@@ -234,14 +243,14 @@ private fun UserMetadataItem(
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge.copy(
-                color = DeepRed,
+                color = MaterialTheme.colorScheme.primary, // Replaced DeepRed
                 fontWeight = FontWeight.Bold
             )
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodySmall.copy(
-                color = WarmBrown,
+                color = MaterialTheme.colorScheme.primary, // Replaced WarmBrown
                 fontWeight = FontWeight.SemiBold
             ),
             modifier = Modifier.padding(top = 2.dp)
@@ -264,12 +273,12 @@ private fun CookingTipCard(
     Box(
         modifier = modifier
             .background(
-                color = CreamyYellow,
+                color = MaterialTheme.colorScheme.surface, // Replaced CreamyYellow
                 shape = MaterialTheme.shapes.medium
             )
             .border(
                 width = 1.dp,
-                color = WarmBrown.copy(alpha = 0.2f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), // Replaced WarmBrown
                 shape = MaterialTheme.shapes.medium
             )
             .padding(20.dp)
@@ -278,7 +287,7 @@ private fun CookingTipCard(
             Text(
                 text = "Chef's Tip of the Day",
                 style = MaterialTheme.typography.labelLarge.copy(
-                    color = DeepRed,
+                    color = MaterialTheme.colorScheme.primary, // Replaced DeepRed
                     fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -287,7 +296,7 @@ private fun CookingTipCard(
             Text(
                 text = randomTip,
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Neutral10,
+                    color = MaterialTheme.colorScheme.onBackground, // Replaced Neutral10
                     fontStyle = FontStyle.Italic
                 )
             )

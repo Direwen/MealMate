@@ -32,12 +32,6 @@ import com.minsikhein_bj01lr.mealmate.data.model.Recipe
 import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
-import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
-import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral10
-import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral100
-import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeListViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
@@ -82,12 +76,12 @@ fun RecipesListScreen(
                 Text(
                     text = "My Recipes",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = DeepRed
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Button(
                     onClick = { navController.navigate(Routes.RECIPES_CREATE) },
-                    colors = ButtonDefaults.buttonColors(DeepRed)
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Add,
@@ -148,30 +142,29 @@ private fun EmptyRecipesPrompt(navController: NavController) {
             imageVector = Icons.Outlined.SetMeal,
             contentDescription = "No recipes",
             modifier = Modifier.size(48.dp),
-            tint = Neutral10
+            tint = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "No recipes yet",
             style = MaterialTheme.typography.titleLarge,
-            color = DeepRed
+            color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Create your first recipe to get started",
             style = MaterialTheme.typography.bodyMedium,
-            color = Neutral10
+            color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = { navController.navigate(Routes.RECIPES_CREATE) },
-            colors = ButtonDefaults.buttonColors(DeepRed)
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
         ) {
             Text("Create Recipe")
         }
     }
 }
-
 
 @Composable
 fun SwipeToDismissItem(
@@ -235,7 +228,7 @@ fun SwipeToDismissItem(
             val backgroundColor by animateColorAsState(
                 targetValue = when (swipeToDismissState.targetValue) {
                     SwipeToDismissBoxValue.EndToStart -> Color(0xFFD32F2F)  // Delete color
-                    SwipeToDismissBoxValue.StartToEnd -> WarmBrown // Edit color
+                    SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.primary // Edit color
                     SwipeToDismissBoxValue.Settled -> Color.Transparent // When not swiping
                 },
                 label = "BackgroundColorAnimation"
@@ -258,13 +251,13 @@ fun SwipeToDismissItem(
                         Icon(
                             imageVector = Icons.Outlined.Edit,
                             contentDescription = "Edit",
-                            tint = Neutral100,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Edit",
-                            color = Neutral100,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -280,18 +273,19 @@ fun SwipeToDismissItem(
                         Icon(
                             imageVector = Icons.Outlined.Delete,
                             contentDescription = "Delete",
-                            tint = Neutral100,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Delete",
-                            color = Neutral100,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
-            }},
+            }
+        },
         modifier = modifier
     ) {
         RecipeOverviewRow(recipe = item, navController = navController)
@@ -314,7 +308,7 @@ fun RecipeOverviewRow(recipe: Recipe, navController: NavController) {
             .clickable {
                 navController.navigate("${Routes.RECIPES_DETAIL}/${recipe.id}")
             }
-            .background(SoftCreamyYellow)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Row(
             modifier = Modifier
@@ -342,7 +336,7 @@ fun RecipeOverviewRow(recipe: Recipe, navController: NavController) {
                         modifier = Modifier
                             .size(32.dp)
                             .align(Alignment.Center),
-                        tint = Neutral10
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
@@ -355,7 +349,7 @@ fun RecipeOverviewRow(recipe: Recipe, navController: NavController) {
                 Text(
                     text = recipe.title,
                     style = MaterialTheme.typography.titleLarge,
-                    color = DeepRed,
+                    color = MaterialTheme.colorScheme.primary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -417,7 +411,7 @@ private fun RecipeMetadataItem(
         Text(
             text = text,
             style = MaterialTheme.typography.bodySmall,
-            color = Neutral10,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

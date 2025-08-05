@@ -11,10 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
-
 import androidx.compose.material3.OutlinedTextField
-import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
 
 @Composable
 fun MealMateTextField(
@@ -36,12 +33,12 @@ fun MealMateTextField(
         modifier = modifier.fillMaxWidth(),
         keyboardOptions = keyboardOptions,
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = SoftCreamyYellow,
-            unfocusedContainerColor = SoftCreamyYellow,
-            disabledContainerColor = SoftCreamyYellow,
-            focusedIndicatorColor = DeepRed,
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            disabledContainerColor = MaterialTheme.colorScheme.background,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
             unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
-            cursorColor = DeepRed
+            cursorColor = MaterialTheme.colorScheme.primary
         )
     )
 }

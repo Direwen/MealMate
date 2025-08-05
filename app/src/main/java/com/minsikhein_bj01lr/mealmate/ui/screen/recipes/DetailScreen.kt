@@ -50,12 +50,6 @@ import com.minsikhein_bj01lr.mealmate.data.repository.RecipeIngredientWithDetail
 import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
 import com.minsikhein_bj01lr.mealmate.ui.component.LoadingScreen
-import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
-import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral10
-import com.minsikhein_bj01lr.mealmate.ui.theme.Neutral100
-import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.WarmBrown
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.ImportState
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeDetailUiState
@@ -100,7 +94,7 @@ fun RecipesDetailScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SoftCreamyYellow)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             LoadingScreen(isLoading = uiState is RecipeDetailUiState.Loading) {
                 when (val state = uiState) {
@@ -108,7 +102,7 @@ fun RecipesDetailScreen(
                         Text(
                             text = "Error: ${state.message}",
                             modifier = Modifier.padding(16.dp),
-                            color = DeepRed
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                     is RecipeDetailUiState.Success -> {
@@ -140,6 +134,7 @@ fun RecipeDetailContent(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+
     val imageStorageHelper = remember { ImageStorageHelper(context.applicationContext) }
     val imageBitmap = remember(recipe.imagePath) {
         recipe.imagePath.takeIf { it.isNotEmpty() }?.let { path ->
@@ -164,13 +159,13 @@ fun RecipeDetailContent(
                 Icon(
                     imageVector = Icons.Outlined.ArrowBackIosNew,
                     contentDescription = "Back",
-                    tint = DeepRed
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
             Text(
                 text = "Recipe Details",
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                color = DeepRed,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -183,7 +178,7 @@ fun RecipeDetailContent(
                 .fillMaxWidth()
                 .height(200.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(WarmBrown.copy(alpha = 0.2f))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
         ) {
             if (imageBitmap != null) {
                 Image(
@@ -199,7 +194,7 @@ fun RecipeDetailContent(
                     modifier = Modifier
                         .size(64.dp)
                         .align(Alignment.Center),
-                    tint = WarmBrown
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -210,7 +205,7 @@ fun RecipeDetailContent(
         Text(
             text = recipe.title.replaceFirstChar { it.titlecase() },
             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-            color = DeepRed
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -224,12 +219,12 @@ fun RecipeDetailContent(
             InfoWithIcon(
                 icon = Icons.Outlined.AccessTime,
                 text = "${recipe.preparationTime} mins",
-                iconColor = WarmBrown
+                iconColor = MaterialTheme.colorScheme.primary
             )
             InfoWithIcon(
                 icon = Icons.Outlined.Restaurant,
                 text = "Serves ${recipe.servings}",
-                iconColor = WarmBrown
+                iconColor = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -245,15 +240,15 @@ fun RecipeDetailContent(
                 Text(
                     text = "Ingredients",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = WarmBrown
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Button(
                     onClick = onImportClick,
                     enabled = !isImporting,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = DeepRed,
-                        contentColor = Neutral100
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     modifier = Modifier.height(36.dp)
                 ) {
@@ -273,7 +268,7 @@ fun RecipeDetailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .background(CreamyYellow)
+                    .background(MaterialTheme.colorScheme.surface)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -281,7 +276,7 @@ fun RecipeDetailContent(
                     Text(
                         text = "• ${ingredient.ingredient.name}: ${ingredient.recipeIngredient.amount}",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Neutral10
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
@@ -294,7 +289,7 @@ fun RecipeDetailContent(
             Text(
                 text = "Instructions",
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
-                color = WarmBrown
+                color = MaterialTheme.colorScheme.primary
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -302,11 +297,11 @@ fun RecipeDetailContent(
             Text(
                 text = recipe.instructions,
                 style = MaterialTheme.typography.bodyLarge,
-                color = Neutral10,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .background(CreamyYellow)
+                    .background(MaterialTheme.colorScheme.surface)
                     .padding(16.dp)
             )
         }
@@ -319,7 +314,7 @@ fun RecipeDetailContent(
 fun InfoWithIcon(
     icon: ImageVector,
     text: String,
-    iconColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onPrimary,
+    iconColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -336,7 +331,7 @@ fun InfoWithIcon(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = Neutral10
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }

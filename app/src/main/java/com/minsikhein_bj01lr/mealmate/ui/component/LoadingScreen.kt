@@ -7,8 +7,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
-import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun LoadingScreen(isLoading: Boolean, content: @Composable () -> Unit) {
@@ -19,10 +18,10 @@ fun LoadingScreen(isLoading: Boolean, content: @Composable () -> Unit) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .background(SoftCreamyYellow.copy(alpha = 0.8f)),
+                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = DeepRed)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
     }

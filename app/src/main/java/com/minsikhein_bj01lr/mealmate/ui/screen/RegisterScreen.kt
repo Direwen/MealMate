@@ -32,13 +32,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.minsikhein_bj01lr.mealmate.ui.component.GuestScreen
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateIntro
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateTextField
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
-import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
-import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthState
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 
@@ -47,104 +43,99 @@ fun RegisterScreen(
     navController: NavController,
     authViewModel: AuthViewModel
 ) {
-    GuestScreen(
-        authViewModel = authViewModel,
-        navController = navController
+    val authState by authViewModel.authState.collectAsState()
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.secondary)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val authState by authViewModel.authState.collectAsState()
-        var email by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
+        // Intro Section
+        MealMateIntro()
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .background(CreamyYellow)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Intro Section
-            MealMateIntro()
+            Text(
+                text = "Create Account",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            MealMateTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = "Email"
+            )
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(SoftCreamyYellow)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Create Account",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = DeepRed
-                )
+            MealMateTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = "Password",
+                isPassword = true
+            )
 
-                MealMateTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = "Email"
-                )
-
-                MealMateTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = "Password",
-                    isPassword = true
-                )
-
-                // Show error or loading
-                when (authState) {
-                    is AuthState.Error -> {
-                        val errorMessage = (authState as AuthState.Error).message
-                        Text(
-                            text = errorMessage,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    is AuthState.Loading -> {
-                        CircularProgressIndicator()
-                    }
-                    is AuthState.Authenticated -> {
-                        LaunchedEffect(Unit) {
-                            navController.navigate(Routes.HOME) {
-                                popUpTo(Routes.LOGIN) { inclusive = true }
-                            }
+            // Show error or loading
+            when (authState) {
+                is AuthState.Error -> {
+                    val errorMessage = (authState as AuthState.Error).message
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                is AuthState.Loading -> {
+                    CircularProgressIndicator()
+                }
+                is AuthState.Authenticated -> {
+                    LaunchedEffect(Unit) {
+                        navController.navigate(Routes.HOME) {
+                            popUpTo(Routes.LOGIN) { inclusive = true }
                         }
                     }
-                    else -> Unit
                 }
+                else -> Unit
+            }
 
-                Button(
-                    onClick = {
-                        authViewModel.signup(email, password)
-                    },
-                    enabled = authState != AuthState.Loading,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = DeepRed,
-                        contentColor = CreamyYellow
-                    )
-                ) {
-                    Text("Register")
-                }
+            Button(
+                onClick = {
+                    authViewModel.signup(email, password)
+                },
+                enabled = authState != AuthState.Loading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Text("Register")
+            }
 
-                TextButton(
-                    onClick = {
-                        navController.popBackStack()
-                    }
-                ) {
-                    Text(
-                        text = "Already have an account? Login",
-                        color = DeepRed
-                    )
+            TextButton(
+                onClick = {
+                    navController.popBackStack()
                 }
+            ) {
+                Text(
+                    text = "Already have an account? Login",
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }

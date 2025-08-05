@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.minsikhein_bj01lr.mealmate.ui.component.MealMateIcon
-import com.minsikhein_bj01lr.mealmate.ui.component.MealMateIntro
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
 import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
 import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
@@ -32,6 +31,7 @@ fun SplashScreen(
     navController: NavController,
     authViewModel: AuthViewModel
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     // Collect auth state to observe changes
     val authState = authViewModel.authState.collectAsState().value
 
@@ -59,7 +59,7 @@ fun SplashScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(CreamyYellow)
+            .background(colorScheme.background)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -71,7 +71,7 @@ fun SplashScreen(
         Text(
             text = "MealMate",
             style = MaterialTheme.typography.headlineLarge,
-            color = DeepRed
+            color = colorScheme.primary
         )
     }
 }

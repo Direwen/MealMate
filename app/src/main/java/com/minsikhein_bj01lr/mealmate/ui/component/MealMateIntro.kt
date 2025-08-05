@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 
 @Composable
 fun MealMateIntro(modifier: Modifier = Modifier) {
@@ -23,13 +22,13 @@ fun MealMateIntro(modifier: Modifier = Modifier) {
         Text(
             text = "MealMate",
             style = MaterialTheme.typography.headlineLarge,
-            color = DeepRed
+            color = MaterialTheme.colorScheme.primary
         )
 
         Text(
             text = "Your personal cooking companion",
             style = MaterialTheme.typography.bodyMedium,
-            color = DeepRed
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

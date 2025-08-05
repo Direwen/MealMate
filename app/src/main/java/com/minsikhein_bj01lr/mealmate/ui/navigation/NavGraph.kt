@@ -43,7 +43,8 @@ fun MealMateNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Routes.SPLASH
+        startDestination = Routes.SPLASH,
+        modifier = modifier
     ) {
 
         composable(Routes.SPLASH) {

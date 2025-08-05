@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 MealMateNavHost(
                     navController = navController,
-                    modifier = Modifier.padding(4.dp),
+                    modifier = Modifier,
                     authViewModel = authViewModel
                 )
             }

@@ -21,10 +21,8 @@ import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
 import com.minsikhein_bj01lr.mealmate.ui.component.LoadingScreen
 import com.minsikhein_bj01lr.mealmate.ui.component.recipes.UpdateRecipeForm
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeUpdateViewModel
-import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.UpdateRecipeUiState
 
 @Composable
@@ -46,7 +44,6 @@ fun RecipesUpdateScreen(
         uri?.let { viewModel.setImageUri(it) }
     }
 
-
     LaunchedEffect(recipeId) {
         viewModel.loadRecipeForEditing(recipeId)
     }
@@ -57,7 +54,6 @@ fun RecipesUpdateScreen(
     ) { innerPadding ->
 
         Column {
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -68,7 +64,7 @@ fun RecipesUpdateScreen(
                     Icon(
                         imageVector = Icons.Outlined.ArrowBackIosNew,
                         contentDescription = "Go Back",
-                        tint = DeepRed
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -77,7 +73,7 @@ fun RecipesUpdateScreen(
                 Text(
                     text = "Update Recipe",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = DeepRed
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 

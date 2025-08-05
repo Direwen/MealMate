@@ -13,48 +13,31 @@ import androidx.compose.ui.platform.LocalContext
 
 private val LightColorScheme = lightColorScheme(
     primary = DeepRed,
-    onPrimary = Color.White,
-    primaryContainer = WarmBrown,
-    onPrimaryContainer = Color.Black,
-
-    secondary = SoftOrange,
-    onSecondary = Color.White,
-    secondaryContainer = CreamyYellow,
-    onSecondaryContainer = Color.Black,
-
-    tertiary = WarmBrown,
-    background = Neutral90,
-    onBackground = Neutral10,
+    onPrimary = Neutral100,
+    background = SoftCreamyYellow,
+    secondary = CreamyYellow,
+    onSecondary = DeepRed,
+    onBackground = Neutral0,
     surface = Neutral100,
-    onSurface = Neutral10,
-    inverseSurface = Neutral10,
-    onSurfaceVariant = Neutral10
+    onSurface = Neutral0,
 )
 
 private val DarkColorScheme = darkColorScheme(
     primary = SoftOrange,
-    onPrimary = Color.Black,
-    primaryContainer = DeepRed,
-    onPrimaryContainer = Color.White,
-
-    secondary = WarmBrown,
-    onSecondary = Color.White,
-    secondaryContainer = DeepRed,
-    onSecondaryContainer = Color.White,
-
-    tertiary = WarmBrown,
+    onPrimary = Neutral10,
     background = Neutral10,
-    onBackground = Neutral90,
-    surface = Neutral0,
+    onBackground = Neutral100,
+    secondary = Color(0xFF2B2B2B),
+    onSecondary = CreamyYellow,
+    surface = Color(0xFF2B2B2B),
     onSurface = Neutral100,
-    inverseSurface = Neutral100,
-    onSurfaceVariant = Neutral90
 )
+
 
 @Composable
 fun MealMateTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

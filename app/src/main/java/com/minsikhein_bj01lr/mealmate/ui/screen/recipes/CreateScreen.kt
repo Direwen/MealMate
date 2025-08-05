@@ -29,11 +29,8 @@ import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
 import com.minsikhein_bj01lr.mealmate.ui.component.recipes.CreateRecipeForm
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
-import com.minsikhein_bj01lr.mealmate.ui.theme.CreamyYellow
-import com.minsikhein_bj01lr.mealmate.ui.theme.DeepRed
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.platform.LocalContext
-
 
 @Composable
 fun RecipesCreateScreen(
@@ -52,7 +49,6 @@ fun RecipesCreateScreen(
     ) { innerPadding ->
 
         Column {
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -63,7 +59,7 @@ fun RecipesCreateScreen(
                     Icon(
                         imageVector = Icons.Outlined.ArrowBackIosNew,
                         contentDescription = "Go Back",
-                        tint = DeepRed
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -72,10 +68,9 @@ fun RecipesCreateScreen(
                 Text(
                     text = "Create Recipe",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = DeepRed
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
-
 
             LoadingScreen(isLoading = uiState.isLoading) {
                 Column(
