@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
 import com.minsikhein_bj01lr.mealmate.ui.component.LoadingScreen
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
+import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.groceries.GroceryListViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
@@ -245,7 +246,7 @@ fun GroceriesListScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)  // Reduced spacing
                         ) {
 
-                            items(state.items) { item ->
+                            items(state.items, key = { it.id }) { item ->
                                 var expanded by remember { mutableStateOf(false) }
                                 val isPurchased = item.isPurchased
 
@@ -308,7 +309,7 @@ fun GroceriesListScreen(
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Text(
                                                     text = "Delete",
-                                                    color = MaterialTheme.colorScheme.surface,
+                                                    color = SoftCreamyYellow,
                                                     style = MaterialTheme.typography.bodyMedium
                                                 )
                                             }

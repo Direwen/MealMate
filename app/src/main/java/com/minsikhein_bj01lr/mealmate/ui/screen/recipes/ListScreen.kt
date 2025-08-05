@@ -32,6 +32,7 @@ import com.minsikhein_bj01lr.mealmate.data.model.Recipe
 import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
 import com.minsikhein_bj01lr.mealmate.ui.component.AuthenticatedScreen
 import com.minsikhein_bj01lr.mealmate.ui.navigation.Routes
+import com.minsikhein_bj01lr.mealmate.ui.theme.SoftCreamyYellow
 import com.minsikhein_bj01lr.mealmate.viewmodel.AuthViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipeListViewModel
 import com.minsikhein_bj01lr.mealmate.viewmodel.recipes.RecipesCreateViewModel
@@ -279,7 +280,7 @@ fun SwipeToDismissItem(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Delete",
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = SoftCreamyYellow,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
