@@ -101,7 +101,7 @@ fun HomeScreen(
                     .padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // First Card: Add border
+                // First Card
                 StatCard(
                     title = "Saved Recipes",
                     count = uiState.total_recipes,
@@ -109,15 +109,15 @@ fun HomeScreen(
                     textColor = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f),
                     isLoading = isLoading,
-                    borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) // NEW
+                    borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                 )
 
-                // Second Card: Fix loading indicator contrast
+                // Second Card
                 StatCard(
                     title = "Grocery Items",
                     count = uiState.total_grocery_items,
                     backgroundColor = MaterialTheme.colorScheme.primary,
-                    textColor = MaterialTheme.colorScheme.onPrimary, // this is used for text & spinner
+                    textColor = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.weight(1f),
                     isLoading = isLoading
                 )

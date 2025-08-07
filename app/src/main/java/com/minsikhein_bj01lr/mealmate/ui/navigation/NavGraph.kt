@@ -33,7 +33,8 @@ fun MealMateNavHost(
     authViewModel: AuthViewModel,
     modifier: Modifier
 ) {
-    // Collect as state is used to only read values of public authState from passed authViewModel and trigger recompositions when updated
+    // Collect as state is used to only read values of public authState
+    // from passed authViewModel and trigger recompositions when updated
     val authState by authViewModel.authState.collectAsState()
 
     val startDestination = when (authState) {

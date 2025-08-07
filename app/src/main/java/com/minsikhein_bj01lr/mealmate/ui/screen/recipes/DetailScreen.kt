@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -45,6 +46,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.unit.sp
 import com.minsikhein_bj01lr.mealmate.data.model.Recipe
 import com.minsikhein_bj01lr.mealmate.data.repository.RecipeIngredientWithDetail
 import com.minsikhein_bj01lr.mealmate.data.util.ImageStorageHelper
@@ -77,11 +80,8 @@ fun RecipesDetailScreen(
     LaunchedEffect(importState) {
         when (importState) {
             ImportState.Success -> {
-                // Show snackbar on success
-                // You can implement a proper snackbar here if needed
             }
             is ImportState.Error -> {
-                // Show error message if needed
             }
             else -> {}
         }
@@ -204,11 +204,15 @@ fun RecipeDetailContent(
         // Recipe Title
         Text(
             text = recipe.title.replaceFirstChar { it.titlecase() },
-            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.Bold,
+            ),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .wrapContentHeight()
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Recipe Metadata
         Row(
@@ -268,7 +272,7 @@ fun RecipeDetailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.secondary)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -301,7 +305,7 @@ fun RecipeDetailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.secondary)
                     .padding(16.dp)
             )
         }

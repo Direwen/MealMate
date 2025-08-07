@@ -40,7 +40,7 @@ fun CreateRecipeForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.secondary)
                 .clickable { onImageSelect() }
         ) {
             if (uiState.imageUri != null) {

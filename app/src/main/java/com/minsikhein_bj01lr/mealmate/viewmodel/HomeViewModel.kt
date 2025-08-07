@@ -20,7 +20,6 @@ data class HomeScreenUiState(
     val total_grocery_items: Int = 0
 )
 
-// Update HomeViewModel.kt
 
 class HomeViewModel(
     private val contextProvider: () -> Context
